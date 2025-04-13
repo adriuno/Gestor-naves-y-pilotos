@@ -27,5 +27,5 @@ Este es un proyecto para gestionar una flota de naves del universo Star Wars. Pe
 
 ## Autor
 
-- **Adrián Ginel** (gmadrian94@gmail.comu-email)
+- **Adrián Ginel** (gmadrian94@gmail.com)
 
