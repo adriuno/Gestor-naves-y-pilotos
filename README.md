@@ -1,5 +1,3 @@
-#   Gestor Star Wars
-#   Naves y Pilotos  
 ![Gestor de naves](Starwars-backend/gestor.png)
 ## Descripción
 
