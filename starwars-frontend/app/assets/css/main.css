@@ -1,0 +1,29 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+  /* Tipografía */
+  --font-sans: 'Public Sans', sans-serif;
+
+  /* Fondo y color de texto global */
+  --ui-background: #000000;
+  --ui-color: #facc15; /* amarillo (tailwind yellow-400) */
+
+  /* Evitamos verdes por defecto en botones, menú, etc. */
+  --ui-primary: #facc15;
+  --color-primary-500: #facc15;
+  --color-primary-600: #eab308;
+  --color-primary-700: #ca8a04;
+
+  /* El texto "apagado" (gris) también se ve amarillo por defecto */
+  --ui-text-muted: #facc15;
+  --ui-text-dimmed: #facc15;
+}
+
+@font-face {
+  font-family: 'Starjedi';
+  src: url('@/assets/fonts/Starjedi.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
