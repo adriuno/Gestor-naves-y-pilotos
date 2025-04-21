@@ -18,3 +18,7 @@ Route::post('starships/{id}/pilots', [StarshipController::class, 'addPilot']);
 
 Route::get('/starships/{id}/available-pilots', [StarshipController::class, 'availablePilots']);
 Route::get('/pilots/{id}', [PilotController::class, 'show']);
+
+// Ruta para trampear y poder hacer búsqueda
+Route::get('/starships-all', [StarshipController::class, 'all']);
+
