@@ -93,9 +93,28 @@ class StarshipController extends Controller
 
     // ------------ Funciones para BORRAR pilotos --------------
 
-    public function delete(Request $request, $starshipId, $pilotId){
-        
+    // public function delete(Request $request, $starshipId, $pilotId){
+
+    // }
+    public function deletePilot($starshipId, $pilotId)
+    {
+        $starship = Starship::findOrFail($starshipId);
+
+        if (!$starship->pilots()->where('pilot_id', $pilotId)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'reason' => 'not_attached',
+            ], 404);
+        }
+
+        $starship->pilots()->detach($pilotId);
+
+        return response()->json([
+            'status' => 'success',
+            'reason' => 'pilot_detached',
+        ]);
     }
+
 
     // ------------- Funciones para AÑADIR pilotos -------------
 
