@@ -1,15 +1,15 @@
 <template>
-  <!-- BUSCADOR -->
+  <!-- Buscador -->
   <div class="flex justify-center mt-6">
     <input
-      v-model="searchTerm"
+      v-model="busqueda"
       type="text"
       placeholder="Buscar nave o piloto..."
       class="w-full max-w-md p-2 border border-yellow-500 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring focus:border-yellow-400"
     >
   </div>
 
-  <!-- GRID -->
+  <!-- cards -->
   <div
     v-if="paginatedStarships.length"
     class="grid grid-cols-1 sm:grid-cols-2 gap-10 p-6 mx-auto max-w-7xl mt-8"
@@ -19,7 +19,7 @@
       :key="starship.id"
       class="flex flex-col md:flex-row bg-gray-900 border border-yellow-700 rounded-xl shadow-md hover:bg-gray-800 transition duration-300 overflow-hidden w-full min-h-[300px]"
     >
-      <!-- Imagen -->
+      
       <div class="w-full md:w-[22rem] h-60 md:h-auto overflow-hidden">
         <img
           :src="starship.image2_url"
@@ -28,7 +28,7 @@
         >
       </div>
 
-      <!-- Contenido -->
+      
       <div class="flex flex-col justify-between p-4 text-gray-300 flex-1">
         <h5 class="mb-2 text-2xl font-bold tracking-wide text-yellow-300 text-center md:text-left">
           {{ starship.name }}
@@ -46,6 +46,7 @@
         </div>
 
         <div class="mt-4 flex flex-col items-center gap-4 w-full">
+
           <!-- Botón para mostrar formulario -->
           <div v-if="showPilotForm !== starship.id" class="flex justify-center gap-4 w-full">
             <button
@@ -56,7 +57,8 @@
             </button>
           </div>
 
-          <!-- Formulario -->
+
+          <!-- Desplegable -->
           <div v-if="showPilotForm === starship.id" class="space-y-2 w-full">
             <select
               v-model="selectedPilotId"
@@ -89,9 +91,9 @@
     </div>
   </div>
 
-  <!-- MENSAJE SIN RESULTADOS -->
+  <!-- else buscador -->
   <div v-else class="text-center text-yellow-400 text-xl mt-12">
-    No se ha encontrada la nave/piloto indicado!
+    No se ha encontrado la nave/piloto indicado!
   </div>
 
 
@@ -107,7 +109,7 @@
   >
     <div class="bg-white rounded-lg p-6 max-w-md w-full">
       <h3 class="text-2xl font-bold text-center mb-4 bg-yellow-500">{{ modalStarship.name }}</h3>
-      <img :src="modalStarship.image2_url" alt="Image" class="w-full mb-4" />
+      <img :src="modalStarship.image2_url" alt="Image" class="w-full mb-4" >
       <p><strong>Modelo:</strong> {{ modalStarship.model }}</p>
       <p><strong>Fabricante:</strong> {{ modalStarship.manufacturer }}</p>
       <p><strong>Coste:</strong> {{ modalStarship.cost_in_credits }}</p>
@@ -139,32 +141,33 @@
     </div>
   </div>
 
+
   <!--  ---------------  PAGINACIÓN  ---------------- -->
-  <div v-if="totalPages > 1" class="flex justify-center gap-4 mt-5 custom-starwars">
+  <div v-if="totalPaginas > 1" class="flex justify-center gap-4 mt-5 custom-starwars">
     <button
-      :disabled="page === 1"
+      :disabled="pagina === 1"
       class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50"
-      @click="page--"
+      @click="pagina--"
     >
       Anterior
     </button>
 
     <button
-      v-for="paginaActual in totalPages"
+      v-for="paginaActual in totalPaginas"
       :key="paginaActual"
       :class="[
         'px-3 py-1 rounded',
-        page === paginaActual ? 'bg-yellow-400 text-black rounded-full' : ' text-white',
+        pagina === paginaActual ? 'bg-yellow-400 text-black rounded-full' : ' text-white',
       ]"
-      @click="page = paginaActual"
+      @click="pagina = paginaActual"
     >
       {{ paginaActual }}
     </button>
 
     <button
-      :disabled="page === totalPages"
+      :disabled="pagina === totalPaginas"
       class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50"
-      @click="page++"
+      @click="pagina++"
     >
       Siguiente
     </button>
@@ -175,10 +178,10 @@
 const config = useRuntimeConfig()
 
 // Estado
-const searchTerm = ref("")
+const busqueda = ref("")
 const starships = ref([])
-const page = ref(1)
-const perPage = 4
+const pagina = ref(1)
+const navesPorPagina = 4
 
 // Modal
 const showModal = ref(false)
@@ -200,10 +203,11 @@ const loadStarships = async () => {
 }
 await loadStarships()
 
+
 // Búsqueda + filtrado
 const filteredStarships = computed(() => {
-  if (!starships.value || !Array.isArray(starships.value.data)) return []
-  const term = searchTerm.value.toLowerCase().trim()
+  //if (!starships.value || !Array.isArray(starships.value.data)) return []
+  const term = busqueda.value.toLowerCase().trim()
   if (!term) return starships.value.data
 
   return starships.value.data.filter((s) => {
@@ -215,20 +219,25 @@ const filteredStarships = computed(() => {
   })
 })
 
+
+
 // Paginación de resultados filtrados
 const paginatedStarships = computed(() => {
-  const start = (page.value - 1) * perPage
-  return filteredStarships.value.slice(start, start + perPage)
+  const start = (pagina.value - 1) * navesPorPagina
+  return filteredStarships.value.slice(start, start + navesPorPagina)
 })
 
-const totalPages = computed(() => {
-  return Math.ceil(filteredStarships.value.length / perPage)
+const totalPaginas = computed(() => {
+  return Math.ceil(filteredStarships.value.length / navesPorPagina)
 })
+
 
 // Resetear a primera página si cambia la búsqueda
-watch(searchTerm, () => {
-  page.value = 1
+watch(busqueda, () => {
+  pagina.value = 1
 })
+
+
 
 // Modal
 const openModal = (starship) => {
@@ -238,6 +247,8 @@ const openModal = (starship) => {
 const closeModal = () => {
   showModal.value = false
 }
+
+
 
 //  ----------  añadir pilotos -----------
 const fetchAvailablePilots = async (starshipId) => {

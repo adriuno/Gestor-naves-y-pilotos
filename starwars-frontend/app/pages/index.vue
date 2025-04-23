@@ -1,30 +1,100 @@
 <template>
-  <div class="relative min-h-screen">
-    <!-- Fondo -->
-    <div class="absolute inset-0">
-      <img src="/images/sw3.jpg" alt="galaxy" class="w-full h-full object-cover brightness-75">
-    </div>
- 
-    <div class="relative z-10">
-      <AppHeader />
-      <main class="p-8  mx-auto  bg-black/70 rounded-xl text-center">
-        <p class="mt-4 text-4xl text-yellow-300 custom-starwars">En una galaxia muy, muy lejana...</p>
-        <br><br>
-        <p class="text-3xl text-yellow-300 custom-starwars">¡Bienvenido al gestor de</p>
-        <p class="text-3xl text-yellow-300 custom-starwars">naves y pilotos!</p> <br>
+  <div class="w-full min-h-screen md:h-screen overflow-y-auto bg-black">
+    <!-- Vídeo que siempre se ve -->
+    <video
+      ref="videoRef"
+      src="/sounds/introSW.mp4"
+      autoplay
+      muted
+      playsinline
+      class="w-full h-full object-cover"
+      @canplay="initVideo"
+      @ended="goToLogin"
+    />
 
-        <!-- <CardsApp  />  -->
-         <CardsApp />
-      </main>
-      
+    <!-- Botón para saltar -->
+    <button
+      class="absolute top-4 right-5 bg-yellow-600 text-black font-semibold px-3 py-2 rounded-2xl text-sm hover:bg-yellow-500"
+      @click="goToLogin"
+    >
+      Saltar intro
+    </button>
+
+    <!-- Control de volumen fijo abajo a la derecha -->
+    <!-- Se puede usar FIXED o STICKY para fijar la barra o algún elmnto.. si hace falta cuando haya scroll  -->
+    <div
+      class="fixed bottom-4 right-4 bg-black bg-opacity-60 px-4 py-2 rounded-lg text-white flex items-center space-x-2 z-50"
+    >
+    <label for="volume">{{ volumenIcono }}</label>
+    <input
+        id="volume"
+        v-model.number="volume"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        class="w-32"
+        @input="activateSound"
+      >
+    </div>
+    <div>
+      <button class="fixed bottom-4 ml-4 bg-gray-400 hover:bg-yellow-600 rounded-2xl text-black px-2 py-1" @click="reproducir">▶️/⏸️</button>
     </div>
   </div>
 </template>
 
 
 
-<style>
-.custom-starwars {
-  font-family: 'Starjedi', sans-serif;
+<script setup>
+
+const router = useRouter()
+
+const videoRef = ref(null)
+const volume = ref(0) // volumen inicial a mitad
+
+const initVideo = () => {
+  if (videoRef.value) {
+    videoRef.value.volume = volume.value
+  }
 }
-</style>
+
+const reproducir = () => {
+  if (videoRef.value.paused) {
+  videoRef.value.play()
+} else {
+  videoRef.value.pause()
+}
+// y si quisieramos con ternario: 
+// videoRef.value.paused ? videoRef.value.play() : videoRef.value.pause()
+}
+
+// esta funcion hace que al interactuar el usuario, se quite el MUTED y se ajuste el volumen del video!!!!!
+const activateSound = () => {
+  if (videoRef.value) {
+    videoRef.value.muted = false // activa sonido al mover el slider
+    videoRef.value.volume = volume.value
+  }
+}
+
+// Función para irse a login
+const goToLogin = () => {
+  router.push('/login')
+}
+
+// Si queremos 3 opciones por ejemplo:  OJO daba error xk computed() esperaba un return.. al final
+const volumenIcono = computed(() => {
+  if (volume.value === 0) return '🔇'
+  if (volume.value > 0.5) return '🔊'
+  if (volume.value > 0) return '🔉'
+  return '🔊'
+})
+
+
+/* Para que se muestre un iconito u otro:  CON UN TERNARIO SE HACE FÁCIL PAR 2 opciones
+const volumeEmoji = computed(() => {
+  return volume.value > 0 ? '🔊' : '🔇'  aunque ojo... se pueden anidar ternarios??
+})
+  */
+
+
+</script>
