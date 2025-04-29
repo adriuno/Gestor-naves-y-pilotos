@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full min-h-screen md:h-screen overflow-y-auto bg-black">
+  <div class="relative w-full min-h-screen md:h-screen overflow-y-auto bg-black">
     <!-- Vídeo que siempre se ve -->
     <video
       ref="videoRef"
@@ -14,11 +14,12 @@
 
     <!-- Botón para saltar -->
     <button
-      class="absolute top-4 right-5 bg-yellow-600 text-black font-semibold px-3 py-2 rounded-2xl text-sm hover:bg-yellow-500"
+      class="absolute top-6 right-6 bg-yellow-600 text-black font-semibold px-3 py-2 rounded-2xl text-sm hover:bg-yellow-500"
       @click="goToLogin"
     >
-      Saltar intro
+      Saltar intro  
     </button>
+
 
     <!-- Control de volumen fijo abajo a la derecha -->
     <!-- Se puede usar FIXED o STICKY para fijar la barra o algún elmnto.. si hace falta cuando haya scroll  -->
@@ -33,12 +34,16 @@
         min="0"
         max="1"
         step="0.01"
-        class="w-32"
+        
+        class="w-32 accent-yellow-500"
         @input="activateSound"
       >
     </div>
     <div>
-      <button class="fixed bottom-4 ml-4 bg-gray-400 hover:bg-yellow-600 rounded-2xl text-black px-2 py-1" @click="reproducir">▶️/⏸️</button>
+      <button
+        class="fixed bottom-4 ml-4 hover:bg-yellow-800 rounded-2xl text-black px-2 py-1"
+        :class="reproduccion ? 'bg-gray-600' : 'bg-yellow-600'"
+        @click="reproducir">▶️/⏸️</button>
     </div>
   </div>
 </template>
@@ -50,6 +55,7 @@
 const router = useRouter()
 
 const videoRef = ref(null)
+const reproduccion = ref(true)
 const volume = ref(0) // volumen inicial a mitad
 
 const initVideo = () => {
@@ -61,8 +67,10 @@ const initVideo = () => {
 const reproducir = () => {
   if (videoRef.value.paused) {
   videoRef.value.play()
+  reproduccion.value = true
 } else {
   videoRef.value.pause()
+  reproduccion.value = false
 }
 // y si quisieramos con ternario: 
 // videoRef.value.paused ? videoRef.value.play() : videoRef.value.pause()
