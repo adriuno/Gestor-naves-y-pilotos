@@ -22,3 +22,4 @@ Route::get('/pilots/{id}', [PilotController::class, 'show']);
 // Ruta para trampear y poder hacer búsqueda
 Route::get('/starships-all', [StarshipController::class, 'all']);
 
+

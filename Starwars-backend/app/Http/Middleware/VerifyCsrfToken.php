@@ -11,5 +11,7 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         'starships/*/pilots',
+        'api/starships/*/pilots/*', // para DELETE
+        'starships/*/pilots/*', // para DELETE
     ];
 }

@@ -17,7 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
             VerifyCsrfToken::class
         );
+     
     })
+
     ->withExceptions(function (Exceptions $exceptions) {
         //
+
     })->create();

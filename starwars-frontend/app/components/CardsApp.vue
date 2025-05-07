@@ -265,14 +265,20 @@ const fetchAvailablePilots = async (starshipId) => {
 
 const addPilotToStarship = async (starshipId) => {
   const pilotoNombre = availablePilots.value.find(p => p.id === selectedPilotId.value)?.name || 'este piloto'
+  const token = localStorage.getItem('token')
+
   if (confirm(`¿Quieres AÑADIR al piloto ${pilotoNombre}?`)) {
     try {
       await $fetch(`${config.public.API_URL}/api/starships/${starshipId}/pilots`, {
         method: 'POST',
         body: {
           pilot_id: selectedPilotId.value
+        },
+        headers: {
+          Authorization: `Bearer ${token}`
         }
       })
+
       selectedPilotId.value = null
       showPilotForm.value = null
       await loadStarships()
@@ -282,6 +288,8 @@ const addPilotToStarship = async (starshipId) => {
   }
 }
 
+
+
 const cancelar = () => {
   showPilotForm.value = null
   selectedPilotId.value = null
@@ -290,16 +298,23 @@ const cancelar = () => {
 // -------------  borrar pilotos  -------------
 
 const deletePilot = async (starshipId, pilotId) => {
+  const token = localStorage.getItem('token')
+
   if (confirm(`¿Quieres BORRAR al piloto?`)) {
     try {
       await $fetch(`${config.public.API_URL}/api/starships/${starshipId}/pilots/${pilotId}`, {
         method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       })
+
       closeModal()
       await loadStarships()
     } catch (error) {
-      alert('error al intentar borrar' + error)
+      alert('error al intentar borrar: ' + error)
     }
   }
 }
+
 </script>

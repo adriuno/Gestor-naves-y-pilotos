@@ -7,6 +7,8 @@ use App\Http\Resources\StarshipResource;
 use App\Models\Pilot;
 use App\Models\Starship;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class StarshipController extends Controller
 {
@@ -96,8 +98,16 @@ class StarshipController extends Controller
     // public function delete(Request $request, $starshipId, $pilotId){
 
     // }
+
+
     public function deletePilot($starshipId, $pilotId)
     {
+        // $user = Auth::user();
+        // // solo el admin puede borrar
+        // if (!$user || !$user->admin) {
+        //     return response()->json(['message' => 'No autorizado'], 403);
+        // }
+
         $starship = Starship::findOrFail($starshipId);
 
         if (!$starship->pilots()->where('pilot_id', $pilotId)->exists()) {
