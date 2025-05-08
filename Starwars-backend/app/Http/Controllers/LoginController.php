@@ -12,12 +12,12 @@ class LoginController extends Controller
 
     public function register(Request $request){
         $registerUserData = $request->validate([
-            'name'=>'required|string',
+            'username'=>'required|string',
             'email'=>'required|string|email|unique:users',
-            'password'=>'required|min:8'
+            'password'=>'required|min:6'
         ]);
         $user = User::create([
-            'name' => $registerUserData['name'],
+            'username' => $registerUserData['username'],
             'email' => $registerUserData['email'],
             'password' => Hash::make($registerUserData['password']),
         ]);
@@ -29,7 +29,7 @@ class LoginController extends Controller
     public function login(Request $request){
         $loginUserData = $request->validate([
             'email' => 'required|string|email',
-            'password' => 'required|min:8'
+            'password' => 'required|min:6'
         ]);
     
         $user = User::where('email', $loginUserData['email'])->first();

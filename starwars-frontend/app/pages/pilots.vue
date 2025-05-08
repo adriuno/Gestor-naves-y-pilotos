@@ -14,10 +14,16 @@
           <p class="text-3xl text-yellow-300 custom-starwars">naves y pilotos!</p> <br>
   
           <!-- <CardsPilots  />  -->
-           <CardsPilots />
+           <CardsPilots /> 
         </main>
         
       </div>
     </div>
   </template>
   
+    
+  <style>
+  .custom-starwars {
+    font-family: 'Starjedi', sans-serif;
+  }
+  </style>

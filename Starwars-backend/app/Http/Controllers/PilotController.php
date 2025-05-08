@@ -8,7 +8,17 @@ use Illuminate\Http\Request;
 class PilotController extends Controller
 {
     //
-    public function destroy($id) {
+    public function index(Request $request)
+    {
+        $order = $request->get('order', 'asc'); 
+        return Pilot::orderBy('name', $order)->paginate(3);
+    }
+    // por defecto ascendente, así luego desde NUXT se puede manejar el ordenamiento
+    // $fetch(`/api/pilots?page=${page.value}&order=asc`)
+    
+
+    public function destroy($id)
+    {
         $pilot = Pilot::findOrFail($id);
 
         if (!$pilot) {
@@ -34,23 +44,21 @@ class PilotController extends Controller
 
 
     public function show($id)
-{
-    $pilot = Pilot::findOrFail($id);
+    {
+        $pilot = Pilot::findOrFail($id);
 
-    if (!$pilot) {
+        if (!$pilot) {
+            return response()->json([
+                'status' => 'error',
+                'reason' => 'pilot_not_found',
+            ], 404);
+        }
+
+
         return response()->json([
-            'status' => 'error',
-            'reason' => 'pilot_not_found',
-        ], 404);
+            'status' => 'success',
+            'reason' => 'pilot_loaded',
+            'data' => $pilot,
+        ]);
     }
-
-    
-    return response()->json([
-        'status' => 'success',
-        'reason' => 'pilot_loaded',
-        'data' => $pilot,
-    ]);
-}
-
-
 }

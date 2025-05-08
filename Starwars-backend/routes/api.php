@@ -3,8 +3,10 @@
 use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StarshipController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\PilotController;
+
+Route::get('/pilots', [PilotController::class, 'index']);
+
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/starships/{id}/pilots', [StarshipController::class, 'addPilot']);
