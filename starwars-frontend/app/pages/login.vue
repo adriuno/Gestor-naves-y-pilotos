@@ -7,7 +7,7 @@
       <h2 class="text-3xl text-center text-yellow-500 mb-8 custom-starwars">Login</h2>
 
       <!-- Formulario manejado por Nuxt UI con @submit="handleSubmit" -->
-      <UForm :state="form" class="space-y-6" @submit="handleSubmit">
+      <UForm :state="form" 	class="space-y-6" @submit="handleSubmit">
         
         <!-- Campo de Email -->
         <UFormField name="email">
@@ -37,7 +37,7 @@
               placeholder="contraseña..."
               icon="i-lucide-text"
               :type="show ? 'text' : 'password'"
-              :ui="{ base: 'bg-gray-800 text-yellow-500', trailing: 'pe-1' }"
+              :ui="{ base: 'bg-gray-800 text-yellow-00', trailing: 'pe-1' }"
               :aria-invalid="score < 4"
               aria-describedby="password-comparativa"
               class="w-full"

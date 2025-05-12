@@ -50,7 +50,7 @@
         <p class=" text-center md:text-left text-blue-400 font-serif">
           <strong>Pilotos:</strong> {{ starship.pilots.length }}
           <button
-              class="px-3 py-2 ml-24 text-white bg-green-700 rounded-lg 
+              class="px-3 py-2 ml-22 text-white bg-green-700 rounded-lg 
                     hover:scale-130 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-500 transition"
               @click="fetchAvailablePilots(starship.id)">
               <i class="fa-solid fa-user-plus"></i>

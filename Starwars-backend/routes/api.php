@@ -20,7 +20,7 @@ Route::post('logout',[LoginController::class,'logout'])
 
 
 
-// Esta ruta aún está comentada, puedes activarla si la necesitas
+// Esta ruta aún está comentada, puedes activarla si se necesita
 // Route::get('/starships', [StarshipController::class, 'index']);
 
 
