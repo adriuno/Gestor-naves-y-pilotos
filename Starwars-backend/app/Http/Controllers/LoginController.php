@@ -29,14 +29,19 @@ class LoginController extends Controller
     public function login(Request $request){
         $loginUserData = $request->validate([
             'email' => 'required|string|email',
-            'password' => 'required|min:6'
+            'password' => 'required'
         ]);
     
         $user = User::where('email', $loginUserData['email'])->first();
     
-        if (!$user || !Hash::check($loginUserData['password'], $user->password)) {
+        if(!$user){
             return response()->json([
-                'message' => 'Invalid Credentials'
+                'message' => 'Email incorrecto!'
+            ], 404);
+        }
+        if(!Hash::check($loginUserData['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Contraseña incorrecta!'
             ], 401);
         }
     
@@ -47,12 +52,39 @@ class LoginController extends Controller
         ]);
     }
 
-    // public function logout(){
-    //     auth()->user()->tokens()->delete();
+
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete(); // requiere HasApiTokens en User
+
+        return response()->json([
+            "message" => "Logged out"
+        ]);
+    }
     
-    //     return response()->json([
-    //       "message"=>"logged out"
-    //     ]);
-    // }
+
+    // public function login(Request $request){
+
+        //     $loginUserData = $request->validate([
+        //         'email' => 'required|string|email',
+        //         'password' => 'required'
+        //     ]);
+        
+        //     $user = User::where('email', $loginUserData['email'])->first();
+        
+        //     if (!$user || !Hash::check($loginUserData['password'], $user->password)) {
+        //         return response()->json([
+        //             'message' => 'Correo o contraseña incorrectos'
+        //         ], 401);
+        //     }
+        
+        //     $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
+        
+        //     return response()->json([
+        //         'access_token' => $token,
+        //     ]);
+        // }
+        
     
+        
 }

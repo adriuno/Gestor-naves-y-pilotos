@@ -6,6 +6,8 @@
       <!-- Título del formulario con fuente personalizada -->
       <h2 class="text-3xl text-center text-yellow-500 mb-8 custom-starwars">Login</h2>
 
+
+
       <!-- Formulario manejado por Nuxt UI con @submit="handleSubmit" -->
       <UForm :state="form" 	class="space-y-6" @submit="handleSubmit">
         
@@ -22,7 +24,11 @@
             placeholder="correo@example.com"
             :ui="{ base: 'bg-gray-900 text-yellow-500' }"
           />
-        </UFormField>
+          <p v-if="errors.email" class="text-red-500 text-sm mt-1 italic">
+            {{ errors.email[0] }}
+          </p>
+
+        </UFormField>   
 
         <!-- Campo de Contraseña con validación visual -->
         <div class="space-y-2">
@@ -38,8 +44,6 @@
               icon="i-lucide-text"
               :type="show ? 'text' : 'password'"
               :ui="{ base: 'bg-gray-800 text-yellow-00', trailing: 'pe-1' }"
-              :aria-invalid="score < 4"
-              aria-describedby="password-comparativa"
               class="w-full"
             >
               <!-- Botón de mostrar/ocultar contraseña -->
@@ -55,12 +59,15 @@
                 />
               </template>
             </UInput>
+            <p v-if="errors.password" class="text-red-500 text-sm mt-1 italic">
+              {{ errors.password[0] }}
+            </p>
+            <div v-if="errorGlobal" class="text-red-500 text-sm mb-4 text-center italic">
+              {{ errorGlobal }}
+            </div>
+
           </UFormField>
 
-          <!-- Texto con resumen de la seguridad de la contraseña -->
-          <p id="password-comparativa" class="text-xs font-small text-white mt-2">
-            {{ text }}
-          </p>
 
 
         </div>
@@ -103,40 +110,22 @@ const form = ref({
 // Estado para mostrar/ocultar la contraseña
 const show = ref(false)
 
-// Función que evalúa los requisitos de seguridad de la contraseña
-function checkStrength(str) {
-  const requirements = [
-    { regex: /.{8,}/, text: 'Al menos 8 caracteres' },
-    { regex: /\d/, text: 'Al menos 1 número' },
-    { regex: /[a-z]/, text: 'Al menos 1 letra minúscula' },
-    { regex: /[A-Z]/, text: 'Al menos 1 letra mayúscula' },
-  ]
 
-  return requirements.map(req => ({
-    met: req.regex.test(str),
-    text: req.text,
-  }))
-}
+const errors = ref({})
+const errorGlobal = ref('')
+const isSubmitting = ref(false)
 
-// Resultado de la validación (lista de requisitos cumplidos o no)
-const comparativa = computed(() => checkStrength(form.value.password))
-
-// Cantidad de requisitos cumplidos (0 a 4)
-const score = computed(() => comparativa.value.filter(req => req.met).length)
-
-// Texto resumen según la fuerza de la contraseña
-const text = computed(() => {
-  if (score.value === 0) return ''
-  if (score.value <= 2) return 'Contraseña débil. '
-  if (score.value === 3) return 'Contraseña media. '
-  return 'Contraseña fuerte. '
-})
 
 // Router de Nuxt para redireccionar después del login
 const router = useRouter()
 
 // Función que se ejecuta al enviar el formulario
 const handleSubmit = async () => {
+  errorGlobal.value = ''
+  errors.value = {}
+  isSubmitting.value = true
+
+
   try {
     const response = await $fetch('http://localhost:8000/api/login', {
       method: 'POST',
@@ -149,7 +138,26 @@ const handleSubmit = async () => {
     // Redirige tras login
     router.push('/options')
   } catch (err) {
-    console.error('Error en login:', err?.data?.message || err.message)
+       
+    //  Detecta el código de error
+    const status = err?.response?.status || err?.status
+
+    if (status === 422) {
+      // Errores de validación de campos
+      errors.value = err.data.errors
+    } else if (status === 404) {
+      // Email no existe
+      errorGlobal.value = 'Email incorrecto.'
+    } else if (status === 401) {
+      // Contraseña incorrecta
+      errorGlobal.value = 'Contraseña incorrecta.'
+    } else {
+      // Otro error inesperado
+      errorGlobal.value = 'Error con el servidor. Intenta de nuevo más tarde.'
+    }
+
+  } finally {
+    isSubmitting.value = false
   }
 }
 
