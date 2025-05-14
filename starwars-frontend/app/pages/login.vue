@@ -1,6 +1,6 @@
 <template>
   <!-- Contenedor principal a pantalla completa con fondo oscuro -->
-  <div class="min-h-screen flex items-center justify-center bg-gray-900">
+  <div class="min-h-screen flex items-center justify-center bg-gray-900 px-8">
     <!-- Tarjeta del formulario con fondo más claro y sombra -->
     <div class="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-lg">
       <!-- Título del formulario con fuente personalizada -->
@@ -24,7 +24,7 @@
             placeholder="correo@example.com"
             :ui="{ base: 'bg-gray-900 text-yellow-500' }"
           />
-          <p v-if="errors.email" class="text-red-500 text-sm mt-1 italic">
+          <p v-if="errors.email" class="text-red-500 text-xs mt-1 italic ">
             {{ errors.email[0] }}
           </p>
 
@@ -62,7 +62,7 @@
             <p v-if="errors.password" class="text-red-500 text-sm mt-1 italic">
               {{ errors.password[0] }}
             </p>
-            <div v-if="errorGlobal" class="text-red-500 text-sm mb-4 text-center italic">
+            <div v-if="errorGlobal" class="text-red-500 text-xs mb-4 mt-2 text-center italic">
               {{ errorGlobal }}
             </div>
 
@@ -82,9 +82,20 @@
         >
           Iniciar sesión
         </UButton>
+        <!-- Login con Google -->
+        <div class="text-center">
+          <UButton
+            color="white"
+            class="block w-full text-white py-2.5 font-semibold bg-red-600 rounded-4xl hover:bg-red-700 transition"
+            @click="loginWithGoogle"
+          >
+            <i class="fa-brands fa-google mr-3 text-xl"  />
+            Continuar con Google
+          </UButton>
+        </div>
 
         <!-- Enlace a registro para nuevos usuarios -->
-        <div class="text-center text-white mt-8">        
+        <div class="text-center text-white mt-14">        
           <p class="custom-starwars mb-5">¿Aun no tienes cuenta?</p>
           <nuxt-link 
             to="registro"
@@ -160,6 +171,16 @@ const handleSubmit = async () => {
     isSubmitting.value = false
   }
 }
+
+
+
+// Login con GOOGLE:
+
+const loginWithGoogle = () => {
+  window.location.href = 'http://localhost:8000/api/auth/google/redirect'
+}
+
+
 
 </script>
 

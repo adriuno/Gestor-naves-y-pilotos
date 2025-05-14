@@ -4,6 +4,7 @@ use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StarshipController;
 use App\Http\Controllers\PilotController;
+use App\Http\Controllers\SocialController;
 
 Route::get('/pilots', [PilotController::class, 'index']);
 
@@ -17,6 +18,9 @@ Route::post('register',[LoginController::class,'register']);
 Route::post('login',[LoginController::class,'login']);
 Route::post('logout',[LoginController::class,'logout'])
   ->middleware('auth:sanctum');
+
+Route::get('/auth/google/redirect', [SocialController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [SocialController::class, 'handleGoogleCallback']);
 
 
 

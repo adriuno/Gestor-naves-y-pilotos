@@ -1,44 +1,59 @@
 <template>
-    <!-- Fondo a pantalla completa -->
-    <div
-      class="min-h-screen bg-cover bg-center text-white p-6 text-center"
-      style="background-image: url('/images/sw3.jpg')"
+  <!-- Fondo a pantalla completa -->
+  <div
+    class="relative min-h-screen bg-black bg-cover bg-center bg-no-repeat text-white px-6 py-4 flex flex-col justify-between"
+    style="background-image: url('/images/sw3.jpg')"
+  >
+
+    <!-- Botón logout en la esquina -->
+    <UButton
+      class="absolute py-2 sm:py-3 sm:px-3 sm:text-2xl top-4 sm:top-5 right-2 sm:right-15 bg-red-600 rounded-3xl
+              hover:bg-red-700 hover:scale-115 transition-transform z-10
+              hover:drop-shadow-[0_0_8px_#38bdf8] z-10 transition duration-200"
+      @click="cerrarSesion"
     >
-    <h1
-        class="inline-block text-4xl text-black bg-yellow-400 mt-5 custom-starwars rounded-4xl px-5 py-4"
-        >
+      <i class="fa-solid fa-power-off" />
+    </UButton>
+
+    <!-- Título centrado -->
+    <div class="flex justify-center">
+      <h1
+        class="inline-block text-3xl sm:text-4xl text-black bg-yellow-400 mt-9 sm:mt-4 custom-starwars rounded-4xl sm:px-5 py-4 text-center"
+      >
         selecciona una opcion
-    </h1>
-  
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Nave -->
-    <div>
-    <canvas ref="naveCanvas" />
-    <button
-        class="inline-block text-2xl text-black bg-yellow-400 bg-gray-500 mt-1 mb-5 custom-starwars rounded-4xl px-6 py-3 
-        hover:scale-155 transition-transform 
-        hover:text-yellow-500 hover:bg-violet-600 transition-colors duration-300"
-        @click="goTo('home')"
-    >
-        Ver Naves
-    </button>
+      </h1>
     </div>
 
-    <!-- Piloto -->
-    <div>
-    <canvas ref="pilotoCanvas" />
-    <button
-        class="inline-block text-2xl text-black bg-yellow-400 bg-gray-500 mt-2 mb-4 custom-starwars rounded-4xl px-6 py-3 
+    <!-- Contenido en la parte inferior (Naves y Pilotos) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+      <!-- Nave -->
+      <div class="flex flex-col items-center">
+        <canvas ref="naveCanvas" class="h-32 w-full" />
+        <button
+          class="inline-block text-2xl text-black bg-yellow-400 bg-gray-500 mt-1 mb-8 custom-starwars rounded-4xl px-6 py-3 
+          hover:scale-155 transition-transform 
+          hover:text-yellow-500 hover:bg-violet-600 transition-colors duration-300"
+          @click="goTo('home')"
+        >
+          Ver Naves
+        </button>
+      </div>
+
+      <!-- Piloto -->
+      <div class="flex flex-col items-center">
+        <canvas ref="pilotoCanvas" class="h-32 w-full" />
+        <button
+          class="inline-block text-2xl text-black bg-yellow-400 bg-gray-500 mt-2 mb-9 custom-starwars rounded-4xl px-6 py-3 
             hover:scale-155 transition-transform hover:text-yellow-500 hover:bg-violet-600 transition-colors duration-300"
-        @click="goTo('pilots')"
-    >
-        Ver Pilotos
-    </button>
-    </div>
-
+          @click="goTo('pilots')"
+        >
+          Ver Pilotos
+        </button>
       </div>
     </div>
-  </template>
+  </div>
+</template>
+
   
   <script setup>
 import * as THREE from 'three'
@@ -145,6 +160,29 @@ onMounted(() => {
     cameraZ: 5,
   })
 })
+
+
+    const cerrarSesion = async () => {
+
+      const token = localStorage.getItem('token')
+
+      try {
+      await $fetch('http://localhost:8000/api/logout', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      // Limpias el token
+      localStorage.removeItem('token')
+
+      // Rediriges
+      navigateTo('/login')
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error)
+    }
+  }
 </script>
 
   

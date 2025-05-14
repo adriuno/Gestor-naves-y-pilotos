@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-900">
+  <div class="min-h-screen flex items-center justify-center bg-gray-900 px-8">
     <div class="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-lg">
       <h2 class="text-3xl text-center text-yellow-500 mb-8 custom-starwars">Registro</h2>
 
@@ -13,6 +13,10 @@
             class="w-full"
             :ui="{ base: 'bg-gray-900 text-yellow-500' }"
           />
+
+            <p v-if="errors.username" class="text-red-500 italic text-xs mt-1">
+              {{ errors.username[0] }}
+            </p>
         </UFormField>
 
         <UFormField name="email">
@@ -24,6 +28,10 @@
             class="w-full"
             :ui="{ base: 'bg-gray-900 text-yellow-500' }"
           />
+
+            <p v-if="errors.email" class="text-red-500 italic text-xs mt-1">
+              {{ errors.email[0] }}
+            </p>
         </UFormField>
 
         <UFormField name="password">
@@ -49,6 +57,11 @@
               />
             </template>
           </UInput>
+
+
+            <p v-if="errors.password" class="text-red-500 italic text-xs mt-1">
+              {{ errors.password[0] }}
+            </p>
         </UFormField>
 
         <UProgress
@@ -58,20 +71,23 @@
           :max="4"
           size="md"
         />
-        <p id="password-strength" class="text-xs text-white mt-2">
-          {{ text }} Debe contener min.6 caracteres, 1 nº, 1 mayus, 1 minus.
-        </p>
-        <p v-if="showErrors && passwordErrors.length" class="text-sm text-red-400 mt-2">
-          {{ passwordErrors.join(', ') }}
+        <p id="password-strength" class="text-xs text-white">
+          {{ text }} Debe contener min:6 caracteres, 1 nº, 1 mayúscula y 1 minúscula.
         </p>
 
-        <UButton type="submit" color="primary" class="text-black font-bold" block>
+        <UButton
+            type="submit"
+            color="primary"
+            size="xl"
+            class="text-black font-bold rounded-4xl"
+            block
+          >
           Crear cuenta
         </UButton>
 
         <div class="text-center text-white mt-8">        
           <p class="custom-starwars mb-5">¿ya tienes cuenta?</p>
-          <nuxt-link to="login" class="btn rounded-4xl bg-blue-500 p-3">Iniciar sesión</nuxt-link>
+          <nuxt-link to="login" class="block w-full btn rounded-4xl bg-blue-500 p-2 hover:bg-blue-600">Iniciar sesión</nuxt-link>
         </div> 
       </UForm>
     </div>
@@ -79,6 +95,7 @@
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
 const config = useRuntimeConfig()
 
 const form = ref({
@@ -88,7 +105,6 @@ const form = ref({
 })
 
 const show = ref(false)
-const showErrors = ref(false)
 
 const checkStrength = (str) => [
   { regex: /.{6,}/, text: 'Al menos 6 caracteres', met: /.{6,}/.test(str) },
@@ -97,9 +113,7 @@ const checkStrength = (str) => [
   { regex: /[A-Z]/, text: 'Al menos 1 mayúscula', met: /[A-Z]/.test(str) },
 ]
 
-const passwordErrors = computed(() =>
-  checkStrength(form.value.password).filter(req => !req.met).map(req => req.text)
-)
+
 
 const strength = computed(() => checkStrength(form.value.password))
 const score = computed(() => strength.value.filter(req => req.met).length)
@@ -112,32 +126,38 @@ const text = computed(() =>
   ['', 'Contraseña débil', 'Contraseña débil. ', 'Contraseña media. ', 'Contraseña fuerte. '][score.value]
 )
 
-const handleSubmit = async () => {
-  showErrors.value = false
 
-  const unmet = checkStrength(form.value.password).filter(req => !req.met)
-  if (unmet.length > 0) {
-    showErrors.value = true
-    return
-  }
+const errors = ref({})
+
+const handleSubmit = async () => {
+  errors.value = {} // limpiar errores anteriores
+
 
   try {
-    await $fetch(`${config.public.API_URL}/api/register`, {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const res = await $fetch(`${config.public.API_URL}/api/register`, {
       method: 'POST',
       body: {
         username: form.value.username,
         email: form.value.email,
         password: form.value.password,
       },
+      throw: true,
     })
+
 
     alert('Usuario registrado correctamente')
     navigateTo('/login')
   } catch (err) {
-  console.error('Error al registrar usuario:', err);
-  alert(err?.data?.message || 'Error al registrar usuario');
+
+    if (err?.data?.errors) {
+      errors.value = err.data.errors
+    } else {
+      alert(err?.data?.message || 'Error al registrar usuario')
+    }
   }
 }
+
 </script>
 
 <style>

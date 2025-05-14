@@ -22,14 +22,48 @@
           <p>WARS</p>
         </nuxt-link>
       </div>
-      <span class="text-yellow-400 text-2xl">APP</span>
+      <span class="text-yellow-400 text-2xl mr-2">APP</span>
     </div>
 
+    <div>
+      <UButton
+            class="absolute py-2 sm:py-3 sm:px-3 sm:text-2xl top-4 sm:top-5 right-2 sm:right-11 bg-red-600 rounded-3xl
+              hover:bg-red-700 hover:scale-115 transition-transform z-10
+              hover:drop-shadow-[0_0_8px_#38bdf8] z-10 transition duration-200"
+        
+      @click="cerrarSesion">
+        <i class="fa-solid fa-power-off "/>      
+      </UButton>
+    </div>
 
   </header>
 </template>
 
+<script setup>
 
+  const cerrarSesion = async () => {
+
+    const token = localStorage.getItem('token')
+
+    try {
+    await $fetch('http://localhost:8000/api/logout', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    // Limpias el token
+    localStorage.removeItem('token')
+
+    // Rediriges
+    navigateTo('/login')
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error)
+  }
+}
+
+</script>
 
 
 
