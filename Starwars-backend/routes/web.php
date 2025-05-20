@@ -10,8 +10,7 @@ Route::get('/', function () {
 
 
 Route::get('/starships', [StarshipController::class, 'index']);
-Route::get('/starships/{id}', [StarshipController::class, 'show']);
-
+// Route::middleware(['web', 'auth'])->get('/starships/{id}', [StarshipController::class, 'show']);
 
 Route::delete('/pilots/{id}', [PilotController::class, 'destroy']);
 Route::post('starships/{id}/pilots', [StarshipController::class, 'addPilot']);

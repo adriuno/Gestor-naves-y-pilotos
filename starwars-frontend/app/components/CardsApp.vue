@@ -203,7 +203,7 @@ const config = useRuntimeConfig();
 
 // Estado
 const busqueda = ref("");
-const starships = ref([]);
+const starships = ref({ data: [] }); // Asegura estructura desde el inicio
 const pagina = ref(1);
 const navesPorPagina = 4;
 
@@ -219,52 +219,54 @@ const showPilotForm = ref(null);
 // Cargar datos iniciales
 const loadStarships = async () => {
   try {
-    const res = await $fetch(`${config.public.API_URL}/starships`);
-    starships.value = res;
+    const token = localStorage.getItem("token");
+    const res = await $fetch(`${config.public.API_URL}/api/starships`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // Protege si la respuesta no viene como se espera
+    starships.value = res?.data ? res : { data: [] };
   } catch (error) {
     console.error("Error al cargar starships", error);
+    starships.value = { data: [] };
   }
 };
-await loadStarships();
+
+onMounted(() => {
+  loadStarships();
+});
 
 // Búsqueda + filtrado
 const filteredStarships = computed(() => {
-  //if (!starships.value || !Array.isArray(starships.value.data)) return []
+  const lista = starships.value?.data ?? [];
   const term = busqueda.value.toLowerCase().trim();
-  if (!term) return starships.value.data;
+  if (!term) return lista;
 
-  return starships.value.data.filter((s) => {
-    const nameMatch = s.name.toLowerCase().includes(term);
+  return lista.filter((s) => {
+    const nameMatch = s.name?.toLowerCase().includes(term);
     const pilotMatch = s.pilots?.some((pilot) =>
-      pilot.name.toLowerCase().includes(term)
+      pilot.name?.toLowerCase().includes(term)
     );
     return nameMatch || pilotMatch;
   });
 });
 
-
-//Paginación VISIBLE
+// Paginación VISIBLE
 const paginasVisibles = computed(() => {
   const paginas = [];
-
-  if (pagina.value > 1) {
-    paginas.push(pagina.value - 1);
-  }
-
+  if (pagina.value > 1) paginas.push(pagina.value - 1);
   paginas.push(pagina.value);
-
-  if (pagina.value < totalPaginas.value) {
-    paginas.push(pagina.value + 1);
-  }
-
+  if (pagina.value < totalPaginas.value) paginas.push(pagina.value + 1);
   return paginas;
 });
 
-
 // Paginación de resultados filtrados
 const paginatedStarships = computed(() => {
+  const lista = filteredStarships.value ?? [];
   const start = (pagina.value - 1) * navesPorPagina;
-  return filteredStarships.value.slice(start, start + navesPorPagina);
+  return lista.slice(start, start + navesPorPagina);
 });
 
 const totalPaginas = computed(() => {
@@ -281,28 +283,23 @@ const openModal = (starship) => {
   modalStarship.value = starship;
   showModal.value = true;
 };
+
 const closeModal = () => {
   showModal.value = false;
 };
 
 watch(showModal, (isOpen) => {
-  if (isOpen) {
-    document.body.classList.add("overflow-hidden");
-  } else {
-    document.body.classList.remove("overflow-hidden");
-  }
+  document.body.classList.toggle("overflow-hidden", isOpen);
 });
-// y si el usuario cierra la modal de forma rara.. o recarga web..
+
 onUnmounted(() => {
   document.body.classList.remove("overflow-hidden");
 });
 
-//  ----------  añadir pilotos -----------
+// Añadir pilotos
 const fetchAvailablePilots = async (starshipId) => {
   try {
-    const res = await $fetch(
-      `${config.public.API_URL}/starships/${starshipId}/available-pilots`
-    );
+    const res = await $fetch(`${config.public.API_URL}/starships/${starshipId}/available-pilots`);
     availablePilots.value = res.data;
     selectedPilotId.value = null;
     showPilotForm.value = starshipId;
@@ -313,25 +310,18 @@ const fetchAvailablePilots = async (starshipId) => {
 };
 
 const addPilotToStarship = async (starshipId) => {
-  const pilotoNombre =
-    availablePilots.value.find((p) => p.id === selectedPilotId.value)?.name ||
-    "este piloto";
+  const pilotoNombre = availablePilots.value.find((p) => p.id === selectedPilotId.value)?.name || "este piloto";
   const token = localStorage.getItem("token");
 
   if (confirm(`¿Quieres AÑADIR al piloto ${pilotoNombre}?`)) {
     try {
-      await $fetch(
-        `${config.public.API_URL}/api/starships/${starshipId}/pilots`,
-        {
-          method: "POST",
-          body: {
-            pilot_id: selectedPilotId.value,
-          },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await $fetch(`${config.public.API_URL}/api/starships/${starshipId}/pilots`, {
+        method: "POST",
+        body: { pilot_id: selectedPilotId.value },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       selectedPilotId.value = null;
       showPilotForm.value = null;
@@ -347,37 +337,28 @@ const cancelar = () => {
   selectedPilotId.value = null;
 };
 
-// -------------  borrar pilotos  -------------
-
+// Borrar pilotos
 const deletePilot = async (starshipId, pilotId) => {
   const token = localStorage.getItem("token");
 
   if (confirm(`¿Quieres BORRAR al piloto?`)) {
     try {
-      await $fetch(
-        `${config.public.API_URL}/api/starships/${starshipId}/pilots/${pilotId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await $fetch(`${config.public.API_URL}/api/starships/${starshipId}/pilots/${pilotId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       closeModal();
       await loadStarships();
     } catch (error) {
-      alert("error al intentar borrar: " + error);
+      alert("Error al intentar borrar: " + error);
     }
   }
 };
-
-
-// PRUEBAS  raras:
-
-
-
 </script>
+
 
 <style>
 

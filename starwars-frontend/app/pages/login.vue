@@ -21,7 +21,7 @@
             v-model="form.email"
             class="w-full"
             icon="i-lucide-mail"
-            placeholder="correo@example.com"
+            placeholder="Email"
             :ui="{ base: 'bg-gray-900 text-yellow-500' }"
           />
           <p v-if="errors.email" class="text-red-500 text-xs mt-1 italic ">
@@ -40,7 +40,7 @@
             <!-- Input de contraseña con botón de mostrar/ocultar -->
             <UInput
               v-model="form.password"
-              placeholder="contraseña..."
+              placeholder="Contraseña"
               icon="i-lucide-text"
               :type="show ? 'text' : 'password'"
               :ui="{ base: 'bg-gray-800 text-yellow-00', trailing: 'pe-1' }"
@@ -66,6 +66,15 @@
               {{ errorGlobal }}
             </div>
 
+
+            <div class="text-center mt-2 mb-8">
+              <nuxt-link
+                to="/forgot-password"
+                class="text-sm text-white text-center underline"
+              >
+                He olvidado mi contraseña
+              </nuxt-link>
+            </div>
           </UFormField>
 
 
@@ -112,6 +121,8 @@
 
 <script setup>
 
+
+
 // Estado del formulario
 const form = ref({
   email: '',
@@ -135,7 +146,6 @@ const handleSubmit = async () => {
   errorGlobal.value = ''
   errors.value = {}
   isSubmitting.value = true
-
 
   try {
     const response = await $fetch('http://localhost:8000/api/login', {
@@ -177,9 +187,13 @@ const handleSubmit = async () => {
 // Login con GOOGLE:
 
 const loginWithGoogle = () => {
-  window.location.href = 'http://localhost:8000/api/auth/google/redirect'
+  window.location.href = 'http://localhost:8000/api/auth/google/redirect' 
 }
 
+if (process.client && router.currentRoute.value.query.access_token !== undefined) {
+  localStorage.setItem('token', router.currentRoute.value.query.access_token)
+  router.push('/options')
+}
 
 
 </script>

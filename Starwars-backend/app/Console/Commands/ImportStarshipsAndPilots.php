@@ -77,7 +77,7 @@ class ImportStarshipsAndPilots extends Command
             'model' => $shipData['model'] ?? null,
             'manufacturer' => $shipData['manufacturer'] ?? null,
             'cost_in_credits' => is_numeric($shipData['cost_in_credits']) ? $shipData['cost_in_credits'] : null,
-            'starship_class' => $shipData['starship_class'] ?? null,
+            // 'starship_class' => $shipData['starship_class'] ?? null,
             'image2_url' => $this->getStarshipImage($shipData['name']),
         ]);
 
@@ -108,7 +108,8 @@ class ImportStarshipsAndPilots extends Command
                 return $char['image'];
             }
         }
-        return null;
+        // Imagen por defecto si no se encuentra en el array de personajes
+        return asset('storage/images/pilotoAleatorio.jpg');
     }
 
     private function getStarshipImage(string $name): string

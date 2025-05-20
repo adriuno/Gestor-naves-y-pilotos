@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('manufacturer')->nullable();
             $table->string('cost_in_credits')->nullable();
             $table->string('image2_url')->nullable();
+            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
+
             $table->timestamps();
         });
     }

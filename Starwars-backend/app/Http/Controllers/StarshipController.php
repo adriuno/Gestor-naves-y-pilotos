@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\StarshipResource;
 use App\Models\Pilot;
 use App\Models\Starship;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class StarshipController extends Controller
 {
@@ -24,28 +25,51 @@ class StarshipController extends Controller
         return Starship::with('pilots')->orderBy('name')->get();
     }
 
-    public function index(Request $request)
-    {
-        $buscar = $request->query('buscar', '');
+ public function index(Request $request)
+{
+    // Sacamos el token de la cabecera Authorization
+    $tokenHeader = $request->bearerToken();
 
-        logger('Valor de buscar: ' . $buscar);
-
-        $orden = 'name';
-
-        $starships = Starship::with('pilots')
-            ->when($buscar, function ($query) use ($buscar) {
-                $query->where(function ($q) use ($buscar) {
-                    $q->where('name', 'like', "%{$buscar}%")
-                        ->orWhereHas('pilots', function ($q2) use ($buscar) {
-                            $q2->where('name', 'like', "%{$buscar}%");
-                        });
-                });
-            })
-            ->orderBy($orden)
-            ->paginate(36);
-
-        return response()->json($starships);
+    if (!$tokenHeader) {
+        return response()->json(['error' => 'Token no proporcionado'], 401);
     }
+
+    // Buscamos el token en la base de datos
+    $accessToken = PersonalAccessToken::findToken($tokenHeader);
+
+    if (!$accessToken) {
+        return response()->json(['error' => 'Token inválido'], 401);
+    }
+
+    // Obtenemos al usuario desde el token
+    $user = $accessToken->tokenable;
+
+    if (!$user) {
+        return response()->json(['error' => 'Usuario no encontrado'], 401);
+    }
+
+    // Ahora sí podemos acceder a sus starships
+    $buscar = $request->query('buscar', '');
+    $orden = 'name';
+
+    $starships = $user->starships()
+        ->with('pilots')
+        ->when($buscar, function ($query) use ($buscar) {
+            $query->where(function ($q) use ($buscar) {
+                $q->where('name', 'like', "%{$buscar}%")
+                    ->orWhereHas('pilots', function ($q2) use ($buscar) {
+                        $q2->where('name', 'like', "%{$buscar}%");
+                    });
+            });
+        })
+        ->orderBy($orden)
+        ->paginate(36);
+
+    return response()->json($starships);
+}
+
+
+
 
 
     // public function index(Request $request)
@@ -88,10 +112,33 @@ class StarshipController extends Controller
     // }
 
 
+    // public function show($id)
+    // {
+    //     return response()->json(Starship::with('pilots')->findOrFail($id));
+    // }
+
+
     public function show($id)
     {
-        return response()->json(Starship::with('pilots')->findOrFail($id));
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'No autenticado'], 401);
+        }
+
+        $starship = Starship::with('pilots')->where('user_id', $user->id)->findOrFail($id);
+        return response()->json($starship);
     }
+
+
+
+
+
+
+
+
+
+
+
 
     // ------------ Funciones para BORRAR pilotos --------------
 
