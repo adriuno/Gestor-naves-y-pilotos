@@ -41,11 +41,25 @@
 
 <script setup>
 
-  const cerrarSesion = async () => {
+import Swal from 'sweetalert2'
 
-    const token = localStorage.getItem('token')
+const cerrarSesion = async () => {
+  const confirm = await Swal.fire({
+    title: '¿Cerrar sesión?',
+    text: 'Vas a salir de la aplicación',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, cerrar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+  })
 
-    try {
+  if (!confirm.isConfirmed) return
+
+  const token = localStorage.getItem('token')
+
+  try {
     await $fetch('http://localhost:8000/api/logout', {
       method: 'POST',
       headers: {
@@ -53,15 +67,22 @@
       },
     })
 
-    // Limpias el token
     localStorage.removeItem('token')
 
-    // Rediriges
+    // Redirigir directamente sin mostrar mensaje
     navigateTo('/login')
+
   } catch (error) {
     console.error('Error al cerrar sesión:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo cerrar la sesión. Inténtalo de nuevo.',
+    })
   }
 }
+
+
 
 </script>
 

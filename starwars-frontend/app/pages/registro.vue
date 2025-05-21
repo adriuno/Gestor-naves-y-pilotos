@@ -96,6 +96,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import Swal from 'sweetalert2'
 const config = useRuntimeConfig()
 
 const form = ref({
@@ -146,14 +147,27 @@ const handleSubmit = async () => {
     })
 
 
-    alert('Usuario registrado correctamente')
+    // Alerta sweetalert
+    await Swal.fire({
+      icon: 'success',
+      title: '¡Registro con éxito!',
+      text: 'Tu cuenta se ha creado correctamente. Estás siendo redirigido...',
+      timer: 3000,
+      showConfirmButton: false,
+    })
     navigateTo('/login')
   } catch (err) {
 
     if (err?.data?.errors) {
       errors.value = err.data.errors
     } else {
-      alert(err?.data?.message || 'Error al registrar usuario')
+      error.value =  err?.data?.message || 'Error al registrar usuario'
+      Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error.value,
+      confirmButtonText: 'Cerrar',
+      })
     }
   }
 }

@@ -56,6 +56,7 @@
 
   
   <script setup>
+import Swal from 'sweetalert2'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { onMounted, ref } from 'vue'
@@ -64,6 +65,8 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const naveCanvas = ref()
 const pilotoCanvas = ref()
+const modelCache = {}
+
 
 const goTo = (section) => {
   router.push(`/${section}`)
@@ -104,13 +107,20 @@ const loadModel = (canvasRef, modelUrl, options = {}) => {
   let model = null
 
   const loader = new GLTFLoader()
+
+  if (modelCache[modelUrl]) {
+    model = modelCache[modelUrl].clone()
+    scene.add(model)
+    animate()
+    return
+  }
+
   loader.load(modelUrl, (gltf) => {
     model = gltf.scene
+    modelCache[modelUrl] = model.clone() // guardamos en caché
 
-    // Escala personalizada
     const scale = options.scale || 1.5
     model.scale.set(scale, scale, scale)
-
     model.position.set(0, -0.5, 0)
 
     model.traverse((child) => {
@@ -123,6 +133,7 @@ const loadModel = (canvasRef, modelUrl, options = {}) => {
     scene.add(model)
     animate()
   })
+
 
   // Movimiento del ratón → rotación del modelo
   let mouseX = 0
@@ -147,42 +158,83 @@ const loadModel = (canvasRef, modelUrl, options = {}) => {
 }
 
 // Llamadas con tamaño personalizado
-onMounted(() => {
-  // La nave: más grande, más alejada
-  loadModel(naveCanvas, '/models/awing.glb', {
-    scale: 2,
-    cameraZ: 30,
-  })
+  onMounted(async () => {
+    // La nave: más grande, más alejada
+    loadModel(naveCanvas, '/models/awing.glb', {
+      scale: 2,
+      cameraZ: 30,
+    })
 
-  // El piloto: un poco más pequeño, más cerca
-  loadModel(pilotoCanvas, '/models/pilot1.glb', {
-    scale: 2,
-    cameraZ: 5,
-  })
-})
+    // El piloto: un poco más pequeño, más cerca
+    loadModel(pilotoCanvas, '/models/pilot1.glb', {
+      scale: 2,
+      cameraZ: 5,
+    })
 
+    // 🔽 Precarga de imágenes de las 4 primeras naves
+    const token = localStorage.getItem("token")
 
-    const cerrarSesion = async () => {
-
-      const token = localStorage.getItem('token')
-
-      try {
-      await $fetch('http://localhost:8000/api/logout', {
-        method: 'POST',
+    try {
+      const resStarships = await $fetch('http://localhost:8000/api/starships', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
 
-      // Limpias el token
-      localStorage.removeItem('token')
-
-      // Rediriges
-      navigateTo('/login')
+      const primerasNaves = resStarships.data.slice(0, 4)
+      primerasNaves.forEach(nave => {
+        const img = new Image()
+        img.src = nave.image2_url
+      })
     } catch (error) {
-      console.error('Error al cerrar sesión:', error)
+      console.error('Error al precargar imágenes de naves:', error)
     }
+  })
+
+
+const cerrarSesion = async () => {
+  const confirm = await Swal.fire({
+    title: '¿Cerrar sesión?',
+    text: 'Vas a salir de la aplicación',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, cerrar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+  })
+
+  if (!confirm.isConfirmed) return
+
+  const token = localStorage.getItem('token')
+
+  try {
+    await $fetch('http://localhost:8000/api/logout', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    localStorage.removeItem('token')
+
+    // Redirigir directamente sin mostrar mensaje
+    navigateTo('/login')
+
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo cerrar la sesión. Inténtalo de nuevo.',
+    })
   }
+}
+
+
+
+
+  
 </script>
 
   

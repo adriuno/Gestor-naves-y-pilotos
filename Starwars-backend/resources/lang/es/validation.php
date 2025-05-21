@@ -11,6 +11,7 @@ return [
     ],
     'confirmed' => 'La confirmación de :attribute no coincide.',
     
+    // para los campos de login y registro!
     'custom' => [
         'username' => [
             'not_regex' => 'El :attribute de usuario no debe contener ni emojis.',
@@ -20,6 +21,7 @@ return [
             'regex' => 'Debe haber al menos 1 mayúscula, 1 minúscula y 1 número.',
         ],
     ],
+
 
     'attributes' => [
         'username' => ' "nombre de usuario" ',

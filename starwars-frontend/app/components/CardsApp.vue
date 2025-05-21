@@ -1,3 +1,6 @@
+<!-- eslint-disable @typescript-eslint/no-unused-expressions -->
+<!-- eslint-disable vue/html-self-closing -->
+<!-- eslint-disable vue/first-attribute-linebreak -->
 <template>
   <!-- Buscador -->
   <div class="flex justify-center mt-6">
@@ -50,8 +53,9 @@
         <p class=" text-center md:text-left text-blue-400 font-serif">
           <strong>Pilotos:</strong> {{ starship.pilots.length }}
           <button
-              class="px-3 py-2 ml-22 text-white bg-green-700 rounded-lg 
-                    hover:scale-130 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-500 transition"
+              aria-label="Añadir piloto"
+              class="px-3 py-2 ml-30 text-white bg-green-700 rounded-lg 
+                    hover:scale-125 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-500 transition"
               @click="fetchAvailablePilots(starship.id)">
               <i class="fa-solid fa-user-plus"></i>
             </button>
@@ -68,14 +72,23 @@
                 {{ pilot.name }}
               </option>
             </select>
+          <!-- Mensaje de error -->
+            <p v-if="errorSeleccion" class="text-red-400 text-sm mt-1">
+              {{ errorSeleccion }}
+            </p>
 
             <div class="flex gap-2 justify-center">
-              <button :disabled="!selectedPilotId"
+              <!-- si le ponemos  :disabled="!selectedPilotId"  en el <button .. > NO dejaría seleccionar este botón si no se elige una opción!!-->
+              <button 
+                aria-label="Confirmar selección de piloto"
                 class="py-2 px-4 bg-green-700 text-white rounded-xl hover:bg-green-500 transition"
                 @click="addPilotToStarship(starship.id)">
                 <i class="fa-solid fa-check"></i>
               </button>
-              <button class="py-2 px-4 bg-red-600 text-white rounded-xl hover:bg-red-500 transition" @click="cancelar">
+              <button 
+                aria-label="Cancelar selección de piloto"
+                class="py-2 px-4 bg-red-600 text-white rounded-xl hover:bg-red-500 transition" 
+                @click="cancelar">
                 <i class="fa-solid fa-xmark"></i>
               </button>
             </div>
@@ -108,56 +121,120 @@
 
   <!--  --------------------- MODAL ------------------- -->
 
-  <transition name="modal-fade">
-    <div v-if="showModal" class="fixed inset-0 bg-opacity-50 flex backdrop-blur-sm justify-center items-center z-50"
-    @click.self="closeModal">
-    <!-- Modal con tamaño fijo, sin scroll -->
-    <div class="bg-white rounded-lg p-6 w-full max-w-3xl shadow-xl">
-      <!-- Cabecera -->
-      <h3 class="text-2xl font-bold text-center mb-4 bg-yellow-500 py-2 rounded">
-        {{ modalStarship.name }}
-      </h3>
+    <transition name="modal-fade">
+      <div v-if="showModal" 
+      class="fixed inset-0 bg-opacity-50 flex backdrop-blur-sm justify-center items-center z-50 "
+      @click.self="closeModal">
+      <!-- Modal con tamaño fijo, sin scroll -->
+      <!-- <div class="bg-white rounded-lg p-6 w-full max-w-3xl shadow-xl"> -->
+        <div
+          class="relative rounded-4xl p-6 w-full max-w-3xl shadow-xl bg-cover bg-center text-white max-h-[90vh]"
+          :class="{
+            'overflow-y-auto': scrollModalActivo,
+          }"
+          :style="`background-image: url('${modalStarship.image2_url}'); background-blend-mode: overlay; background-color: rgba(0,0,0,0.6);`"
+        >
+        <!-- Cabecera -->
+        <h3 class="text-2xl font-bold text-center mb-4 bg-yellow-500 py-2 rounded-xl">
+          {{ modalStarship.name }}
+        </h3>
 
-      <!-- Imagen más pequeña -->
-      <div class="flex justify-center mb-4">
-        <img :src="modalStarship.image2_url" alt="Image" class="h-48 object-contain rounded" />
-      </div>
+        <!-- Imagen más pequeña -->
+        <div class="flex justify-center mb-4">
+          <img
+            :src="modalStarship.image2_url"
+            alt="Imagen de {{ modalStarship.name }}"
+            class="h-72 object-contain rounded shadow-lg rounded-2xl"  />
+        </div>
 
-      <!-- Detalles -->
-      <p><strong>Modelo:</strong> {{ modalStarship.model }}</p>
-      <p><strong>Fabricante:</strong> {{ modalStarship.manufacturer }}</p>
-      <p>
-        <strong>Coste:</strong>
-        {{ modalStarship.cost_in_credits || "Desconocido" }}
-      </p>
+        <!-- Detalles -->
+        <p><strong class="text-yellow-400">Modelo:</strong> {{ modalStarship.model }}</p>
+        <p><strong class="text-yellow-400">Fabricante:</strong> {{ modalStarship.manufacturer }}</p>
+        <p>
+          <strong class="text-yellow-400">Coste:</strong>
+          {{ modalStarship.cost_in_credits || "Desconocido" }}
+        </p>
 
-      <!-- Pilotos -->
-      <div class="mt-4">
-        <h4 class="text-xl font-semibold mb-2 bg-yellow-500 py-1 px-2 rounded">
-          Pilotos:
-        </h4>
-        <div class="grid grid-cols-2 gap-4">
-          <div v-for="pilot in modalStarship.pilots" :key="pilot.id" class="flex items-center bg-gray-100 p-2 rounded">
-            <img :src="pilot.image_url" alt="Pilot Image" class="w-12 h-12 rounded-full object-cover mr-2" />
-            <span class="text-sm text-gray-700">{{ pilot.name }}</span>
-            <button
-              class="ml-auto px-3 py-2 text-sm font-medium text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-500 transition"
-              @click="deletePilot(modalStarship.id, pilot.id)">
-              <i class="fas fa-trash" />
-            </button>
+        <!-- Pilotos -->
+        <div class="mt-8">
+          <h4 class="text-xl font-semibold mb-2 bg-yellow-500 py-1 px-2 rounded-xl">
+            Pilotos:
+          </h4>
+
+          <!-- Si no hay pilotos -->
+          <div v-if="modalStarship.pilots.length === 0" class="text-yellow-500 font-semibold text-center py-4">
+
+            <p>¡Sin pilotos!</p> 
+            <p>Añade tus pilotos favoritos y que la fuerza os acompañe</p>
+          </div>
+
+          <!-- Si hay solo 1 piloto -->
+          <div
+            v-else-if="modalStarship.pilots.length === 1"
+            class="max-h-64 overflow-y-auto pr-2 flex justify-center"
+          >
+            <div
+              v-for="pilot in modalStarship.pilots"
+              :key="pilot.id"
+              class="flex items-center justify-between gap-2 rounded-lg px-4 py-2 w-[15rem]"
+            >
+              <div class="flex items-center gap-2">
+                <img
+                  :src="pilot.image_url"
+                  alt="Imagen del piloto"
+                  class="w-12 h-12 rounded-full border border-yellow-500 object-cover"
+                />
+                <span class="text-md text-white">{{ pilot.name }}</span>
+              </div>
+              <button
+                aria-label="Borrar piloto"
+                class="text-white hover:scale-120 hover:bg-red-600 p-3 rounded-lg transition"
+                @click="deletePilot(modalStarship.id, pilot.id)"
+              >
+                <i class="fas fa-trash" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Si hay más de 1 piloto -->
+          <div
+            v-else
+             class="max-h-64 overflow-y-auto w-2xl ml-8 pr-2 grid grid-cols-2 gap-x-27 gap-1"
+          >
+            <div
+              v-for="pilot in modalStarship.pilots"
+              :key="pilot.id"
+              class="flex items-center justify-between gap-2 rounded-lg px-4 py-2"
+            >
+              <div class="flex items-center gap-2">
+                <img
+                  :src="pilot.image_url"
+                  alt="Imagen del piloto"
+                  class="w-12 h-12 rounded-full border border-yellow-500 object-cover"
+                />
+                <span class="text-md text-white">{{ pilot.name }}</span>
+              </div>
+              <button
+                aria-label="Borrar piloto"
+                class="text-white hover:scale-120 hover:bg-red-600 p-3 rounded-lg transition"
+                @click="deletePilot(modalStarship.id, pilot.id)"
+              >
+                <i class="fas fa-trash" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Botón cerrar -->
-      <div class="mt-6">
-        <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" @click="closeModal">
-          Cerrar
-        </button>
+
+        <!-- Botón cerrar -->
+        <div class="mt-6">
+          <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" @click="closeModal">
+            Cerrar
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-  </transition>
+    </transition>
 
 
   <!--  ---------------  PAGINACIÓN  ---------------- -->
@@ -199,6 +276,9 @@
 </template>
 
 <script setup>
+import { swalDark } from '#imports';
+import Swal from 'sweetalert2'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 const config = useRuntimeConfig();
 
 // Estado
@@ -206,6 +286,10 @@ const busqueda = ref("");
 const starships = ref({ data: [] }); // Asegura estructura desde el inicio
 const pagina = ref(1);
 const navesPorPagina = 4;
+
+// Variable para mensajico de error
+const errorSeleccion = ref("");
+
 
 // Modal
 const showModal = ref(false);
@@ -215,6 +299,21 @@ const modalStarship = ref({});
 const availablePilots = ref([]);
 const selectedPilotId = ref(null);
 const showPilotForm = ref(null);
+
+const scrollModalActivo = computed(() => {
+  const cantidad = modalStarship.value?.pilots?.length || 0;
+  const anchoPantalla = window.innerWidth;
+
+  return (anchoPantalla < 768 && cantidad > 2) || (anchoPantalla >= 768 && cantidad > 4);
+});
+
+onMounted(() => {
+  window.addEventListener('resize', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    scrollModalActivo.value; // fuerza reevaluación
+  });
+});
+
 
 // Cargar datos iniciales
 const loadStarships = async () => {
@@ -233,6 +332,29 @@ const loadStarships = async () => {
     starships.value = { data: [] };
   }
 };
+
+// llamar a nave que se modifica
+const actualizarNave = async (id) => {
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await $fetch(`${config.public.API_URL}/api/starships/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const index = starships.value.data.findIndex(s => s.id === id);
+    if (index !== -1) {
+      starships.value.data[index] = res;
+    }
+  } catch (e) {
+    console.error("Error actualizando nave individual", e);
+  }
+};
+
+
+
 
 onMounted(() => {
   loadStarships();
@@ -313,7 +435,25 @@ const addPilotToStarship = async (starshipId) => {
   const pilotoNombre = availablePilots.value.find((p) => p.id === selectedPilotId.value)?.name || "este piloto";
   const token = localStorage.getItem("token");
 
-  if (confirm(`¿Quieres AÑADIR al piloto ${pilotoNombre}?`)) {
+  if (!selectedPilotId.value) {
+    errorSeleccion.value = "No has seleccionado ningún piloto.";
+    return;
+  }
+
+  errorSeleccion.value = "";
+
+  const result = await swalDark.fire({
+    title: `¿Añadir a ${pilotoNombre}?`,
+    text: "¿Estás seguro de esta selección?",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, añadir',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+  });
+
+  if (result.isConfirmed) {
     try {
       await $fetch(`${config.public.API_URL}/api/starships/${starshipId}/pilots`, {
         method: "POST",
@@ -325,12 +465,26 @@ const addPilotToStarship = async (starshipId) => {
 
       selectedPilotId.value = null;
       showPilotForm.value = null;
-      await loadStarships();
+      await actualizarNave(starshipId);
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Piloto añadido',
+        text: 'El piloto ha sido asignado con éxito.',
+        timer: 1800,
+        showConfirmButton: false,
+      });
     } catch (err) {
-      alert("Error al añadir piloto: " + (err?.data?.reason || err.message));
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al añadir piloto',
+        text: err?.data?.reason || err.message,
+      });
     }
   }
 };
+
+
 
 const cancelar = () => {
   showPilotForm.value = null;
@@ -338,6 +492,59 @@ const cancelar = () => {
 };
 
 // Borrar pilotos
+
+const deletePilot = async (starshipId, pilotId) => {
+  const token = localStorage.getItem("token");
+
+  const result = await Swal.fire({
+    title: '¿Borrar piloto?',
+    text: "Esta acción no se puede deshacer",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, borrar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#aaa',
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await $fetch(`${config.public.API_URL}/api/starships/${starshipId}/pilots/${pilotId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const res = await $fetch(`${config.public.API_URL}/api/starships/${starshipId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const index = starships.value.data.findIndex(s => s.id === starshipId);
+      if (index !== -1) starships.value.data[index] = res;
+
+      modalStarship.value = res;
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Piloto borrado',
+        text: 'Se ha eliminado correctamente.',
+        timer: 1800,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al borrar piloto',
+        text: error?.data?.reason || error.message,
+      });
+    }
+  }
+};
+
+
+
+/* antes tenía esto.. y lo he cambiado xk se edevuelve ya una variable cn la función de actualizarNave..
 const deletePilot = async (starshipId, pilotId) => {
   const token = localStorage.getItem("token");
 
@@ -350,13 +557,41 @@ const deletePilot = async (starshipId, pilotId) => {
         },
       });
 
-      closeModal();
-      await loadStarships();
+  await actualizarNave(starshipId);
+  modalStarship.value = starships.value.data.find(s => s.id === starshipId);
     } catch (error) {
       alert("Error al intentar borrar: " + error);
     }
   }
-};
+}; 
+*/
+
+  watch(pagina, () => {
+    const start = pagina.value * navesPorPagina
+    const end = start + navesPorPagina
+    const siguientes = filteredStarships.value.slice(start, end)
+
+    siguientes.forEach(nave => {
+      const preload = new Image()
+      preload.src = nave.image2_url
+    })
+  })
+  /*
+  Esto último es para pre-cargar las imágenes así...
+    cuando el usuario está en la página 1, se descargan imágenes de la página 2 en segundo plano.
+    yyy cuando pase a la página 2, las imágenes ya estarán cargadas o parcialmente cacheadas. 
+  */
+
+  onMounted(() => {
+    // Precarga modelos de options
+    const loader = new GLTFLoader()
+    loader.load('/models/awing.glb', () => {})
+    loader.load('/models/pilot1.glb', () => {})
+  })
+
+
+
+
 </script>
 
 

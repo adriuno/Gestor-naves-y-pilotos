@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-900 text-white px-4">
     <div class="bg-gray-800 p-8 rounded-xl shadow-xl max-w-md w-full">
@@ -11,8 +12,8 @@
       />
 
       <button
-        @click="handleSubmit"
         class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 rounded-4xl w-full text-lg"
+        @click="handleSubmit"
       >
         Enviar enlace
       </button>
@@ -29,24 +30,49 @@
 
 
 <script setup>
+import Swal from 'sweetalert2'
+
 const email = ref('')
 const message = ref('')
 const error = ref('')
 
 const handleSubmit = async () => {
-  message.value = ''
   error.value = ''
 
   try {
-    const res = await $fetch('http://localhost:8000/api/forgot-password', {
+
+    Swal.fire({
+      icon: 'info',
+      title: 'Enviando...',
+      text: 'Procesando solicitud...',
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading()
+      }
+    })
+
+    await $fetch('http://localhost:8000/api/forgot-password', {
       method: 'POST',
       body: { email: email.value },
     })
-    message.value = res.message
+    
+    Swal.close()
+
+    await Swal.fire({
+      icon: 'info',
+      title: '¡Correo enviado!',
+      text: 'Revisa tu bandeja de entrada para el enlace de recuperación.',
+      confirmButtonText: 'Aceptar',
+    })
+
+
   } catch (err) {
     error.value = err?.data?.message || 'Error al enviar el correo'
   }
 }
+
+
 </script>
 
 
