@@ -2,276 +2,280 @@
 <!-- eslint-disable vue/html-self-closing -->
 <!-- eslint-disable vue/first-attribute-linebreak -->
 <template>
-  <!-- Buscador -->
-  <div class="flex justify-center mt-6">
-    <!-- Envolvemos el input en un div con posición relativa -->
-    <!-- Esto nos permite posicionar elementos hijos (como el icono) de forma absoluta dentro -->
-    <div class="relative w-full max-w-md">
-      <!-- Input de búsqueda -->
-      <input
-        v-model="busqueda" type="text" placeholder="Buscar nave/piloto..."
-        class="w-full pl-10 p-2 border border-yellow-500 bg-gray-800 text-white rounded-lg 
-              focus:outline-none focus:ring 
-              focus:drop-shadow-[0_0_8px_#38bdf8]" >
+  <div v-if="!autenticando">
+        <!-- Buscador -->
+    <div class="flex justify-center mt-6">
+      <!-- Envolvemos el input en un div con posición relativa -->
+      <!-- Esto nos permite posicionar elementos hijos (como el icono) de forma absoluta dentro -->
+      <div class="relative w-full max-w-md">
+        <!-- Input de búsqueda -->
+        <input
+          v-model="busqueda" type="text" placeholder="Buscar nave/piloto..."
+          class="w-full pl-10 p-2 border border-yellow-500 bg-gray-800 text-white rounded-lg 
+                focus:outline-none focus:ring 
+                focus:drop-shadow-[0_0_8px_#38bdf8]" >
 
-      <!-- Icono de lupa -->
-      <!-- 🔸 Se posiciona absolutamente dentro del input -->
-      <!-- 🔸 left-3 lo sitúa 12px desde la izquierda -->
-      <!-- 🔸 top-1/2 + transform -translate-y-1/2 lo centran verticalmente -->
-      <!-- 🔸 text-yellow-400 para que el color combine con los bordes -->
-      <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103 10.5a7.5 7.5 0 0013.15 6.15z" />
-        </svg>
+        <!-- Icono de lupa -->
+        <!-- 🔸 Se posiciona absolutamente dentro del input -->
+        <!-- 🔸 left-3 lo sitúa 12px desde la izquierda -->
+        <!-- 🔸 top-1/2 + transform -translate-y-1/2 lo centran verticalmente -->
+        <!-- 🔸 text-yellow-400 para que el color combine con los bordes -->
+        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103 10.5a7.5 7.5 0 0013.15 6.15z" />
+          </svg>
+        </div>
       </div>
     </div>
+
+    <!-- cards -->
+    <div class="min-h-[300px] mt-8">
+
+      <div v-if="paginatedStarships.length"      class="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-14 p-6 mx-auto max-w-screen-2xl mt-8">
+      <div
+        v-for="starship in paginatedStarships" :key="starship.id"
+        class="flex flex-col md:flex-row bg-gray-900 border border-yellow-700 rounded-xl shadow-md hover:bg-gray-800 transition duration-300 overflow-hidden w-full min-h-[300px]"
+        style="height: 420px;"
+        >
+        <div class="w-full md:w-[26rem] h-60 md:h-auto overflow-hidden">
+          <img
+            :src="starship.image2_url" :alt="starship.name"
+            class="object-cover w-full h-full transition-transform duration-300 hover:scale-120" >
+        </div>
+
+        <div class="flex flex-col justify-between p-4 text-gray-300 flex-1">
+          <h5 class="mb-2 text-2xl font-bold tracking-wide text-yellow-300 text-center font-serif">
+            {{ starship.name }}
+          </h5>
+          <p class="mt-8 text-center md:text-left text-blue-400 font-serif">
+            <strong>Modelo:</strong> {{ starship.model }}
+          </p>
+          <p class=" text-center md:text-left text-blue-400 font-serif">
+            <strong>Pilotos:</strong> {{ starship.pilots.length }}
+            <button
+                aria-label="Añadir piloto"
+                class="px-3 py-2 ml-30 text-white bg-green-700 rounded-lg 
+                      hover:scale-125 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-500 transition"
+                @click="fetchAvailablePilots(starship.id)">
+                <i class="fa-solid fa-user-plus"></i>
+              </button>
+          </p>
+
+
+          <div class="mt-4 flex flex-col items-center gap-4 w-full">
+            <!-- Botón para mostrar formulario -->
+              <!-- Desplegable -->
+            <div v-if="showPilotForm === starship.id" class="space-y-2 w-full">
+              <select v-model="selectedPilotId" class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600">
+                <option disabled value="">Selecciona un piloto</option>
+                <option v-for="pilot in availablePilots" :key="pilot.id" :value="pilot.id">
+                  {{ pilot.name }}
+                </option>
+              </select>
+            <!-- Mensaje de error -->
+              <p v-if="errorSeleccion" class="text-red-400 text-sm mt-1">
+                {{ errorSeleccion }}
+              </p>
+
+              <div class="flex gap-2 justify-center">
+                <!-- si le ponemos  :disabled="!selectedPilotId"  en el <button .. > NO dejaría seleccionar este botón si no se elige una opción!!-->
+                <button 
+                  aria-label="Confirmar selección de piloto"
+                  class="py-2 px-4 bg-green-700 text-white rounded-xl hover:bg-green-500 transition"
+                  @click="addPilotToStarship(starship.id)">
+                  <i class="fa-solid fa-check"></i>
+                </button>
+                <button 
+                  aria-label="Cancelar selección de piloto"
+                  class="py-2 px-4 bg-red-600 text-white rounded-xl hover:bg-red-500 transition" 
+                  @click="cancelar">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          
+          <div class="mt-auto flex justify-center mb-6">
+            <button
+              class="px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-lg 
+                  focus:ring-4 focus:outline-none focus:ring-yellow-500 transition
+                  hover:drop-shadow-[0_0_5px_#38bdf8] "
+              @click="openModal(starship)">
+              Detalles
+            </button>
+          </div>
+
+        </div>
+      </div>
+      </div>
+
+    <!-- else buscador -->
+      <div v-else class="text-center text-yellow-400 text-xl mt-12">
+        En esta galaxia no se ha encontrado tu nave/piloto indicado!!!
+      </div>
+    </div>
+
+
+
+
+    <!--  --------------------- MODAL ------------------- -->
+
+      <transition name="modal-fade">
+        <div v-if="showModal" 
+        class="fixed inset-0 bg-opacity-50 flex backdrop-blur-sm justify-center items-center z-50 "
+        @click.self="closeModal">
+        <!-- Modal con tamaño fijo, sin scroll -->
+        <!-- <div class="bg-white rounded-lg p-6 w-full max-w-3xl shadow-xl"> -->
+          <div
+            class="relative rounded-4xl p-6 w-full max-w-3xl shadow-xl bg-cover bg-center text-white max-h-[90vh]"
+            :class="{
+              'overflow-y-auto': scrollModalActivo,
+            }"
+            :style="`background-image: url('${modalStarship.image2_url}'); background-blend-mode: overlay; background-color: rgba(0,0,0,0.6);`"
+          >
+          <!-- Cabecera -->
+          <h3 class="text-2xl font-bold text-center mb-4 bg-yellow-500 py-2 rounded-xl">
+            {{ modalStarship.name }}
+          </h3>
+
+          <!-- Imagen más pequeña -->
+          <div class="flex justify-center mb-4">
+            <img
+              :src="modalStarship.image2_url"
+              alt="Imagen de {{ modalStarship.name }}"
+              class="h-72 object-contain rounded shadow-lg rounded-2xl"  />
+          </div>
+
+          <!-- Detalles -->
+          <p><strong class="text-yellow-400">Modelo:</strong> {{ modalStarship.model }}</p>
+          <p><strong class="text-yellow-400">Fabricante:</strong> {{ modalStarship.manufacturer }}</p>
+          <p>
+            <strong class="text-yellow-400">Coste:</strong>
+            {{ modalStarship.cost_in_credits || "Desconocido" }}
+          </p>
+
+          <!-- Pilotos -->
+          <div class="mt-8">
+            <h4 class="text-xl font-semibold mb-2 bg-yellow-500 py-1 px-2 rounded-xl">
+              Pilotos:
+            </h4>
+
+            <!-- Si no hay pilotos -->
+            <div v-if="modalStarship.pilots.length === 0" class="text-yellow-500 font-semibold text-center py-4">
+
+              <p>¡Sin pilotos!</p> 
+              <p>Añade tus pilotos favoritos y que la fuerza os acompañe</p>
+            </div>
+
+            <!-- Si hay solo 1 piloto -->
+            <div
+              v-else-if="modalStarship.pilots.length === 1"
+              class="max-h-64 overflow-y-auto pr-2 flex justify-center"
+            >
+              <div
+                v-for="pilot in modalStarship.pilots"
+                :key="pilot.id"
+                class="flex items-center justify-between gap-2 rounded-lg px-4 py-2 w-[15rem]"
+              >
+                <div class="flex items-center gap-2">
+                  <img
+                    :src="pilot.image_url"
+                    alt="Imagen del piloto"
+                    class="w-12 h-12 rounded-full border border-yellow-500 object-cover"
+                  />
+                  <span class="text-md text-white">{{ pilot.name }}</span>
+                </div>
+                <button
+                  aria-label="Borrar piloto"
+                  class="text-white hover:scale-120 hover:bg-red-600 p-3 rounded-lg transition"
+                  @click="deletePilot(modalStarship.id, pilot.id)"
+                >
+                  <i class="fas fa-trash" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Si hay más de 1 piloto -->
+            <div
+              v-else
+              class="max-h-64 overflow-y-auto w-2xl ml-8 pr-2 grid grid-cols-2 gap-x-27 gap-1"
+            >
+              <div
+                v-for="pilot in modalStarship.pilots"
+                :key="pilot.id"
+                class="flex items-center justify-between gap-2 rounded-lg px-4 py-2"
+              >
+                <div class="flex items-center gap-2">
+                  <img
+                    :src="pilot.image_url"
+                    alt="Imagen del piloto"
+                    class="w-12 h-12 rounded-full border border-yellow-500 object-cover"
+                  />
+                  <span class="text-md text-white">{{ pilot.name }}</span>
+                </div>
+                <button
+                  aria-label="Borrar piloto"
+                  class="text-white hover:scale-120 hover:bg-red-600 p-3 rounded-lg transition"
+                  @click="deletePilot(modalStarship.id, pilot.id)"
+                >
+                  <i class="fas fa-trash" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Botón cerrar -->
+          <div class="mt-6">
+            <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" @click="closeModal">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+      </transition>
+
+
+    <!--  ---------------  PAGINACIÓN  ---------------- -->
+    <div v-if="totalPaginas > 1" class="flex justify-center items-center gap-4 mt-5 custom-starwars">
+    <!-- Botón Anterior -->
+    <button
+      :disabled="pagina === 1"
+      class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
+      @click="pagina--"
+    >
+      Anterior
+    </button>
+
+    <!-- Botones de página: anterior, actual, siguiente -->
+    <button
+      v-for="paginaActual in paginasVisibles"
+      :key="paginaActual"
+      :class="[
+        'px-3 py-1 rounded',
+        pagina === paginaActual
+          ? 'bg-yellow-400 text-black rounded-full drop-shadow-[0_0_8px_#38bdf8]'
+          : 'text-white'
+      ]"
+      @click="pagina = paginaActual"
+    >
+      {{ paginaActual }}
+    </button>
+
+    <!-- Botón Siguiente -->
+    <button
+      :disabled="pagina === totalPaginas"
+      class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
+      @click="pagina++"
+    >
+      Siguiente
+    </button>
+  </div>
+    
   </div>
 
-  <!-- cards -->
-   <div class="min-h-[300px] mt-8">
-
-    <div v-if="paginatedStarships.length"      class="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-14 p-6 mx-auto max-w-screen-2xl mt-8">
-    <div
-      v-for="starship in paginatedStarships" :key="starship.id"
-      class="flex flex-col md:flex-row bg-gray-900 border border-yellow-700 rounded-xl shadow-md hover:bg-gray-800 transition duration-300 overflow-hidden w-full min-h-[300px]"
-      style="height: 420px;"
-      >
-      <div class="w-full md:w-[26rem] h-60 md:h-auto overflow-hidden">
-        <img
-          :src="starship.image2_url" :alt="starship.name"
-          class="object-cover w-full h-full transition-transform duration-300 hover:scale-120" >
-      </div>
-
-      <div class="flex flex-col justify-between p-4 text-gray-300 flex-1">
-        <h5 class="mb-2 text-2xl font-bold tracking-wide text-yellow-300 text-center font-serif">
-          {{ starship.name }}
-        </h5>
-        <p class="mt-8 text-center md:text-left text-blue-400 font-serif">
-          <strong>Modelo:</strong> {{ starship.model }}
-        </p>
-        <p class=" text-center md:text-left text-blue-400 font-serif">
-          <strong>Pilotos:</strong> {{ starship.pilots.length }}
-          <button
-              aria-label="Añadir piloto"
-              class="px-3 py-2 ml-30 text-white bg-green-700 rounded-lg 
-                    hover:scale-125 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-500 transition"
-              @click="fetchAvailablePilots(starship.id)">
-              <i class="fa-solid fa-user-plus"></i>
-            </button>
-        </p>
-
-
-        <div class="mt-4 flex flex-col items-center gap-4 w-full">
-          <!-- Botón para mostrar formulario -->
-            <!-- Desplegable -->
-          <div v-if="showPilotForm === starship.id" class="space-y-2 w-full">
-            <select v-model="selectedPilotId" class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600">
-              <option disabled value="">Selecciona un piloto</option>
-              <option v-for="pilot in availablePilots" :key="pilot.id" :value="pilot.id">
-                {{ pilot.name }}
-              </option>
-            </select>
-          <!-- Mensaje de error -->
-            <p v-if="errorSeleccion" class="text-red-400 text-sm mt-1">
-              {{ errorSeleccion }}
-            </p>
-
-            <div class="flex gap-2 justify-center">
-              <!-- si le ponemos  :disabled="!selectedPilotId"  en el <button .. > NO dejaría seleccionar este botón si no se elige una opción!!-->
-              <button 
-                aria-label="Confirmar selección de piloto"
-                class="py-2 px-4 bg-green-700 text-white rounded-xl hover:bg-green-500 transition"
-                @click="addPilotToStarship(starship.id)">
-                <i class="fa-solid fa-check"></i>
-              </button>
-              <button 
-                aria-label="Cancelar selección de piloto"
-                class="py-2 px-4 bg-red-600 text-white rounded-xl hover:bg-red-500 transition" 
-                @click="cancelar">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        
-        <div class="mt-auto flex justify-center mb-6">
-          <button
-            class="px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-lg 
-                focus:ring-4 focus:outline-none focus:ring-yellow-500 transition
-                hover:drop-shadow-[0_0_5px_#38bdf8] "
-            @click="openModal(starship)">
-            Detalles
-          </button>
-        </div>
-
-      </div>
-    </div>
-    </div>
-
-  <!-- else buscador -->
-    <div v-else class="text-center text-yellow-400 text-xl mt-12">
-      En esta galaxia no se ha encontrado tu nave/piloto indicado!!!
-    </div>
-   </div>
-
-
-
-
-  <!--  --------------------- MODAL ------------------- -->
-
-    <transition name="modal-fade">
-      <div v-if="showModal" 
-      class="fixed inset-0 bg-opacity-50 flex backdrop-blur-sm justify-center items-center z-50 "
-      @click.self="closeModal">
-      <!-- Modal con tamaño fijo, sin scroll -->
-      <!-- <div class="bg-white rounded-lg p-6 w-full max-w-3xl shadow-xl"> -->
-        <div
-          class="relative rounded-4xl p-6 w-full max-w-3xl shadow-xl bg-cover bg-center text-white max-h-[90vh]"
-          :class="{
-            'overflow-y-auto': scrollModalActivo,
-          }"
-          :style="`background-image: url('${modalStarship.image2_url}'); background-blend-mode: overlay; background-color: rgba(0,0,0,0.6);`"
-        >
-        <!-- Cabecera -->
-        <h3 class="text-2xl font-bold text-center mb-4 bg-yellow-500 py-2 rounded-xl">
-          {{ modalStarship.name }}
-        </h3>
-
-        <!-- Imagen más pequeña -->
-        <div class="flex justify-center mb-4">
-          <img
-            :src="modalStarship.image2_url"
-            alt="Imagen de {{ modalStarship.name }}"
-            class="h-72 object-contain rounded shadow-lg rounded-2xl"  />
-        </div>
-
-        <!-- Detalles -->
-        <p><strong class="text-yellow-400">Modelo:</strong> {{ modalStarship.model }}</p>
-        <p><strong class="text-yellow-400">Fabricante:</strong> {{ modalStarship.manufacturer }}</p>
-        <p>
-          <strong class="text-yellow-400">Coste:</strong>
-          {{ modalStarship.cost_in_credits || "Desconocido" }}
-        </p>
-
-        <!-- Pilotos -->
-        <div class="mt-8">
-          <h4 class="text-xl font-semibold mb-2 bg-yellow-500 py-1 px-2 rounded-xl">
-            Pilotos:
-          </h4>
-
-          <!-- Si no hay pilotos -->
-          <div v-if="modalStarship.pilots.length === 0" class="text-yellow-500 font-semibold text-center py-4">
-
-            <p>¡Sin pilotos!</p> 
-            <p>Añade tus pilotos favoritos y que la fuerza os acompañe</p>
-          </div>
-
-          <!-- Si hay solo 1 piloto -->
-          <div
-            v-else-if="modalStarship.pilots.length === 1"
-            class="max-h-64 overflow-y-auto pr-2 flex justify-center"
-          >
-            <div
-              v-for="pilot in modalStarship.pilots"
-              :key="pilot.id"
-              class="flex items-center justify-between gap-2 rounded-lg px-4 py-2 w-[15rem]"
-            >
-              <div class="flex items-center gap-2">
-                <img
-                  :src="pilot.image_url"
-                  alt="Imagen del piloto"
-                  class="w-12 h-12 rounded-full border border-yellow-500 object-cover"
-                />
-                <span class="text-md text-white">{{ pilot.name }}</span>
-              </div>
-              <button
-                aria-label="Borrar piloto"
-                class="text-white hover:scale-120 hover:bg-red-600 p-3 rounded-lg transition"
-                @click="deletePilot(modalStarship.id, pilot.id)"
-              >
-                <i class="fas fa-trash" />
-              </button>
-            </div>
-          </div>
-
-          <!-- Si hay más de 1 piloto -->
-          <div
-            v-else
-             class="max-h-64 overflow-y-auto w-2xl ml-8 pr-2 grid grid-cols-2 gap-x-27 gap-1"
-          >
-            <div
-              v-for="pilot in modalStarship.pilots"
-              :key="pilot.id"
-              class="flex items-center justify-between gap-2 rounded-lg px-4 py-2"
-            >
-              <div class="flex items-center gap-2">
-                <img
-                  :src="pilot.image_url"
-                  alt="Imagen del piloto"
-                  class="w-12 h-12 rounded-full border border-yellow-500 object-cover"
-                />
-                <span class="text-md text-white">{{ pilot.name }}</span>
-              </div>
-              <button
-                aria-label="Borrar piloto"
-                class="text-white hover:scale-120 hover:bg-red-600 p-3 rounded-lg transition"
-                @click="deletePilot(modalStarship.id, pilot.id)"
-              >
-                <i class="fas fa-trash" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-
-        <!-- Botón cerrar -->
-        <div class="mt-6">
-          <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" @click="closeModal">
-            Cerrar
-          </button>
-        </div>
-      </div>
-    </div>
-    </transition>
-
-
-  <!--  ---------------  PAGINACIÓN  ---------------- -->
-  <div v-if="totalPaginas > 1" class="flex justify-center items-center gap-4 mt-5 custom-starwars">
-  <!-- Botón Anterior -->
-  <button
-    :disabled="pagina === 1"
-    class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
-    @click="pagina--"
-  >
-    Anterior
-  </button>
-
-  <!-- Botones de página: anterior, actual, siguiente -->
-  <button
-    v-for="paginaActual in paginasVisibles"
-    :key="paginaActual"
-    :class="[
-      'px-3 py-1 rounded',
-      pagina === paginaActual
-        ? 'bg-yellow-400 text-black rounded-full drop-shadow-[0_0_8px_#38bdf8]'
-        : 'text-white'
-    ]"
-    @click="pagina = paginaActual"
-  >
-    {{ paginaActual }}
-  </button>
-
-  <!-- Botón Siguiente -->
-  <button
-    :disabled="pagina === totalPaginas"
-    class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
-    @click="pagina++"
-  >
-    Siguiente
-  </button>
-</div>
 
 </template>
 
@@ -286,6 +290,8 @@ const busqueda = ref("");
 const starships = ref({ data: [] }); // Asegura estructura desde el inicio
 const pagina = ref(1);
 const navesPorPagina = 4;
+const autenticando = ref(true)
+
 
 // Variable para mensajico de error
 const errorSeleccion = ref("");
@@ -317,21 +323,18 @@ onMounted(() => {
 
 // Cargar datos iniciales
 const loadStarships = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    const res = await $fetch(`${config.public.API_URL}/api/starships`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  const token = localStorage.getItem("token");
 
-    // Protege si la respuesta no viene como se espera
-    starships.value = res?.data ? res : { data: [] };
-  } catch (error) {
-    console.error("Error al cargar starships", error);
-    starships.value = { data: [] };
-  }
+  const res = await $fetch(`${config.public.API_URL}/api/starships`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  starships.value = res?.data ? res : { data: [] };
 };
+
+
 
 // llamar a nave que se modifica
 const actualizarNave = async (id) => {
@@ -354,11 +357,28 @@ const actualizarNave = async (id) => {
 };
 
 
+onMounted(async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return navigateTo('/login?unauthorized=true');
+  }
 
-
-onMounted(() => {
-  loadStarships();
+  try {
+    await loadStarships();
+  } catch (err) {
+    if (err?.response?.status === 401) {
+      console.warn('[TOKEN inválido] Redirigiendo al login...');
+      localStorage.removeItem("token");
+      return navigateTo('/login?unauthorized=true');
+    } else {
+      console.error("Error inesperado al cargar starships:", err);
+    }
+  } finally {
+    autenticando.value = false; // solo se muestra contenido si no hay redirección
+  }
 });
+
+
 
 // Búsqueda + filtrado
 const filteredStarships = computed(() => {

@@ -1,6 +1,11 @@
+<!-- eslint-disable vue/no-multiple-template-root -->
 <template>
+    <!-- Fondo negro fijo detrás de la animación -->
+  <div class="fixed inset-0 bg-black z-0"></div>
+
+  <Transition name="login-slide" appear>
   <!-- Contenedor principal a pantalla completa con fondo oscuro -->
-  <div class="min-h-screen flex items-center justify-center bg-gray-900 px-8">
+  <div class="min-h-screen flex items-center justify-center bg-gray-900 px-8 z-1 relative">
     <!-- Tarjeta del formulario con fondo más claro y sombra -->
     <div class="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-lg">
       <!-- Título del formulario con fuente personalizada -->
@@ -116,6 +121,7 @@
       </UForm>
     </div>
   </div>
+  </Transition>
 </template>
 
 
@@ -196,12 +202,35 @@ if (process.client && router.currentRoute.value.query.access_token !== undefined
 }
 
 
+onMounted(() => {
+  const route = useRoute()
+  if (route.query.unauthorized) {
+    import('sweetalert2').then(Swal => {
+      Swal.default.fire({
+        icon: 'error',
+        title: 'Acceso no autorizado',
+        text: 'Por favor inicia sesión de nuevo.',
+        confirmButtonColor: '#facc15',
+      })
+    })
+  }
+})
+
+
 </script>
 
 
 
-<style>
-.custom-starwars {
-  font-family: 'Starjedi', sans-serif;
+<style scoped>
+.login-slide-enter-active {
+  transition: transform 2s ease, opacity 2s ease;
+}
+.login-slide-enter-from {
+  transform: translateY(100%);
+  opacity: 0;
+}
+.login-slide-enter-to {
+  transform: translateY(0%);
+  opacity: 1;
 }
 </style>

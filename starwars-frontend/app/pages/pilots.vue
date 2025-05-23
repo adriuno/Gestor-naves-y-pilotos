@@ -14,13 +14,20 @@
           <p class="text-3xl text-yellow-300 custom-starwars">naves y pilotos!</p> <br>
   
           <!-- <CardsPilots  />  -->
-           <CardsPilots /> 
+           <CarrouselSwip /> 
+           
         </main>
         
       </div>
     </div>
   </template>
   
+  <script setup>
+    definePageMeta({
+      middleware: 'auth',
+    });
+  </script>
+
     
   <style>
   .custom-starwars {

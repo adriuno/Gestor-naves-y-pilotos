@@ -19,7 +19,6 @@ Route::get('/starships', [StarshipController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/starships/{id}', [StarshipController::class, 'show']);
 
 
-
 // Reset contraseña
 Route::post('/forgot-password', [ResetPasswordController::class, 'sendResetLink']);
 Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
