@@ -16,6 +16,12 @@
       </div>
     </div>
 
+
+      <!-- Spinner de carga -->
+  <div v-if="cargandoPilotos" class="flex justify-center items-center my-12">
+    <i class="fas fa-spinner fa-spin text-yellow-400 text-4xl"></i>
+  </div>
+
     <!-- Carrusel con pilotos -->
     <div v-if="pilots.length" class="">
       <Swiper
@@ -51,7 +57,9 @@
       </Swiper>
     </div>
 
-    <p v-else class="text-center text-yellow-400 mt-10">No se encontraron pilotos con ese nombre.</p>
+    <p v-if="!cargandoPilotos && pilots.length === 0" class="text-center text-yellow-400 mt-10">
+      No se encontraron pilotos con ese nombre.
+    </p>
 
     <!-- Paginación -->
     <div v-if="totalPaginas > 1" class="flex justify-center mt-15 items-center gap-4 mt-5 custom-starwars">
@@ -88,7 +96,7 @@
 
     <!-- Modal con más datos del piloto -->
     <transition name="modal-fade">
-      <div v-if="modalPiloto" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-50" @click.self="cerrarModal">
+      <div v-if="modalPiloto" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-30" @click.self="cerrarModal">
         <div class="bg-gray-900 rounded-xl p-6 text-white w-full max-w-4xl shadow-xl flex flex-col md:flex-row gap-6">
           <!-- Imagen -->
           <div class="flex justify-center md:justify-start">
@@ -166,7 +174,15 @@ const filmMap = {
   "https://swapi.dev/api/films/6/": "/images/films/6.webp",
 }
 
+
+const cargandoPilotos = ref(false) // id de la nave para la que se cargan pilotos
+
+
+
+
+
 const fetchPilotsFromStarships = async () => {
+  cargandoPilotos.value = true
   const token = localStorage.getItem('token');
   if (!token) return navigateTo('/login?unauthorized=true');
 
@@ -193,25 +209,21 @@ const fetchPilotsFromStarships = async () => {
       }
     }
 
-    // Convertir a array, aplicar búsqueda, ordenar por nombre
     let filtered = Object.values(pilotMap);
-
     const term = busqueda.value.trim().toLowerCase();
     if (term) {
-      filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(term)
-      );
+      filtered = filtered.filter(p => p.name.toLowerCase().includes(term));
     }
 
     filtered.sort((a, b) => a.name.localeCompare(b.name));
 
-    // Paginación
     const perPage = 5;
     totalPaginas.value = Math.ceil(filtered.length / perPage);
     const start = (pagina.value - 1) * perPage;
     const end = start + perPage;
 
     pilots.value = filtered.slice(start, end);
+
   } catch (err) {
     if (err?.response?.status === 401) {
       localStorage.removeItem('token');
@@ -219,8 +231,11 @@ const fetchPilotsFromStarships = async () => {
     } else {
       console.error('Error al cargar pilotos desde starships:', err);
     }
+  } finally {
+    cargandoPilotos.value = false
   }
-};
+}
+
 
 
 onMounted(fetchPilotsFromStarships)
@@ -260,7 +275,14 @@ const uniqueStarships = computed(() => {
     return true
   }) || []
 })
+
+
+
+
 </script>
+
+
+
 
 
 <style scoped>

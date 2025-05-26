@@ -5,7 +5,7 @@
 
   <Transition name="login-slide" appear>
   <!-- Contenedor principal a pantalla completa con fondo oscuro -->
-  <div class="min-h-screen flex items-center justify-center bg-gray-900 px-8 z-1 relative">
+  <div class="min-h-screen flex items-center justify-center bg-black px-8 z-1 relative">
     <!-- Tarjeta del formulario con fondo más claro y sombra -->
     <div class="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-lg">
       <!-- Título del formulario con fuente personalizada -->
@@ -27,7 +27,7 @@
             class="w-full"
             icon="i-lucide-mail"
             placeholder="Email"
-            :ui="{ base: 'bg-gray-900 text-yellow-500' }"
+            :ui="{ base: 'bg-gray-800 text-yellow-500' }"
           />
           <p v-if="errors.email" class="text-red-500 text-xs mt-1 italic ">
             {{ errors.email[0] }}
@@ -161,6 +161,8 @@ const handleSubmit = async () => {
 
     // Guarda el token en localStorage
     localStorage.setItem('token', response.access_token)
+    // Y ahora guardamos el usuario y sus datos
+    localStorage.setItem('user', JSON.stringify(response.user))
 
     // Redirige tras login
     router.push('/options')
@@ -196,6 +198,7 @@ const loginWithGoogle = () => {
   window.location.href = 'http://localhost:8000/api/auth/google/redirect' 
 }
 
+// eslint-disable-next-line nuxt/prefer-import-meta
 if (process.client && router.currentRoute.value.query.access_token !== undefined) {
   localStorage.setItem('token', router.currentRoute.value.query.access_token)
   router.push('/options')

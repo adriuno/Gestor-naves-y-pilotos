@@ -1,6 +1,7 @@
+<!-- eslint-disable vue/html-self-closing -->
 <!-- componente ...  Navbar -->
 <template>
-  <header class="custom-starwars bg-black/80 shadow-md h-20 px-6 flex items-center justify-between relative">
+  <header class="custom-starwars bg-black/80 shadow-md h-20 z-50 px-6 flex items-center justify-between relative">
     
     <!-- Volver a la izquierda -->
     <div>
@@ -22,19 +23,33 @@
           <p>WARS</p>
         </nuxt-link>
       </div>
-      <span class="text-yellow-400 text-2xl mr-2">APP</span>
+    <span class="text-yellow-400 text-xs sm:text-xl md:text-2xl mr-2">APP</span>
     </div>
 
-    <div>
-      <UButton
-            class="absolute py-2 sm:py-3 sm:px-3 sm:text-2xl top-4 sm:top-5 right-2 sm:right-11 bg-red-600 rounded-3xl
-              hover:bg-red-700 hover:scale-115 transition-transform z-10
-              hover:drop-shadow-[0_0_8px_#38bdf8] z-10 transition duration-200"
-        
-      @click="cerrarSesion">
-        <i class="fa-solid fa-power-off "/>      
-      </UButton>
+  <!-- Contenedor de nombre y logout -->
+  <div class="absolute top-4 right-2 sm:top-5 sm:right-11 z-10 flex flex-col item-center sm:flex-row items-end sm:items-center gap-1 sm:gap-4">
+
+    <!-- Nombre de usuario -->
+    <div
+      v-if="userName"
+      class="text-white text-xs sm:text-sm bg-gray-800 bg-opacity-80 px-3 py-1 rounded-full border border-yellow-500 flex items-center"
+      style="font-size: 14px"
+      >
+      <i class="fa-solid fa-user text-yellow-400 mr-2"></i>
+      {{ userName }}
     </div>
+
+    <!-- Botón logout -->
+    <UButton
+      class="py-1 sm:py-3 sm:px-3 sm:text-2xl bg-red-600 rounded-3xl
+            hover:bg-red-700 hover:scale-115 transition-transform
+            hover:drop-shadow-[0_0_8px_#38bdf8] duration-200"
+      @click="cerrarSesion"
+    >
+      <i class="fa-solid fa-power-off" />
+    </UButton>
+  </div>
+
 
   </header>
 </template>
@@ -42,6 +57,15 @@
 <script setup>
 
 import Swal from 'sweetalert2'
+
+const userName = ref('')
+try {
+  const user = JSON.parse(localStorage.getItem('user'))
+  userName.value = user?.username || ''
+} catch (e) {
+  console.warn('Error al leer usuario:', e)
+}
+
 
 const cerrarSesion = async () => {
   const confirm = await Swal.fire({

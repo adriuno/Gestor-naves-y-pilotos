@@ -2,6 +2,10 @@
 <!-- eslint-disable vue/html-self-closing -->
 <!-- eslint-disable vue/first-attribute-linebreak -->
 <template>
+    <div v-if="cargandoNaves" class="flex justify-center items-center mt-20">
+        <i class="fas fa-spinner fa-spin text-yellow-400 text-4xl"></i>
+    </div>
+
   <div v-if="!autenticando">
         <!-- Buscador -->
     <div class="flex justify-center mt-6">
@@ -29,6 +33,44 @@
       </div>
     </div>
 
+    <!--  ---------------  PAGINACIÓN  ---------------- -->
+    <div v-if="totalPaginas > 1" class="flex justify-center items-center gap-4 mt-15 custom-starwars">
+    <!-- Botón Anterior -->
+    <button
+      :disabled="pagina === 1"
+      class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
+      @click="pagina--"
+    >
+      Anterior
+    </button>
+
+    <!-- Botones de página: anterior, actual, siguiente -->
+    <button
+      v-for="paginaActual in paginasVisibles"
+      :key="paginaActual"
+      :class="[
+        'px-3 py-1 rounded',
+        pagina === paginaActual
+          ? 'bg-yellow-400 text-black rounded-full drop-shadow-[0_0_8px_#38bdf8]'
+          : 'text-white'
+      ]"
+      @click="pagina = paginaActual"
+    >
+      {{ paginaActual }}
+    </button>
+
+    <!-- Botón Siguiente -->
+    <button
+      :disabled="pagina === totalPaginas"
+      class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
+      @click="pagina++"
+    >
+      Siguiente
+    </button>
+    </div>
+
+
+
     <!-- cards -->
     <div class="min-h-[300px] mt-8">
 
@@ -48,14 +90,14 @@
           <h5 class="mb-2 text-2xl font-bold tracking-wide text-yellow-300 text-center font-serif">
             {{ starship.name }}
           </h5>
-          <p class="mt-8 text-center md:text-left text-blue-400 font-serif">
-            <strong>Modelo:</strong> {{ starship.model }}
+          <p class="mt-8 text-center md:text-left  font-serif">
+            <strong class="text-blue-400">Modelo:</strong> {{ starship.model }}
           </p>
-          <p class=" text-center md:text-left text-blue-400 font-serif">
-            <strong>Pilotos:</strong> {{ starship.pilots.length }}
+          <p class=" text-center md:text-left mt-4 font-serif">
+            <strong class="text-blue-400">Pilotos:</strong> {{ starship.pilots.length }}
             <button
                 aria-label="Añadir piloto"
-                class="px-3 py-2 ml-30 text-white bg-green-700 rounded-lg 
+                class="px-3 py-2 ml-20  text-white bg-green-700 rounded-lg 
                       hover:scale-125 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-500 transition"
                 @click="fetchAvailablePilots(starship.id)">
                 <i class="fa-solid fa-user-plus"></i>
@@ -131,9 +173,9 @@
           <div
             class="relative rounded-4xl p-6 w-full max-w-3xl shadow-xl bg-cover bg-center text-white max-h-[90vh]"
             :class="{
-              'overflow-y-auto': scrollModalActivo,
+              'overflow-y-auto': scrollModalActivo || scrollPorPantallaPequena,
             }"
-            :style="`background-image: url('${modalStarship.image2_url}'); background-blend-mode: overlay; background-color: rgba(0,0,0,0.6);`"
+            :style="`background-image: url('images/hangar1.jpg'); background-blend-mode: overlay; background-color: rgba(0,0,0,0.6);`"
           >
           <!-- Cabecera -->
           <h3 class="text-2xl font-bold text-center mb-4 bg-yellow-500 py-2 rounded-xl">
@@ -145,15 +187,15 @@
             <img
               :src="modalStarship.image2_url"
               alt="Imagen de {{ modalStarship.name }}"
-              class="h-72 object-contain rounded shadow-lg rounded-2xl"  />
+              class="h-48 sm:h-60 object-contain rounded-xl shadow-md"
+            />
           </div>
 
           <!-- Detalles -->
-          <p><strong class="text-yellow-400">Modelo:</strong> {{ modalStarship.model }}</p>
-          <p><strong class="text-yellow-400">Fabricante:</strong> {{ modalStarship.manufacturer }}</p>
-          <p>
-            <strong class="text-yellow-400">Coste:</strong>
-            {{ modalStarship.cost_in_credits || "Desconocido" }}
+          <p class="text-sm sm:text-base"><strong class="text-yellow-400">Modelo:</strong> {{ modalStarship.model }}</p>
+          <p class="text-sm sm:text-base"><strong class="text-yellow-400">Fabricante:</strong> {{ modalStarship.manufacturer }}</p>
+          <p class="text-sm sm:text-base">
+            <strong class="text-yellow-400">Coste:</strong> {{ modalStarship.cost_in_credits || "Desconocido" }}
           </p>
 
           <!-- Pilotos -->
@@ -224,15 +266,14 @@
                 </button>
               </div>
             </div>
+                     <!-- Botón cerrar -->
+            <div class="mt-6">
+              <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" @click="closeModal">
+                Cerrar
+              </button>
+            </div>
           </div>
-
-
-          <!-- Botón cerrar -->
-          <div class="mt-6">
-            <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" @click="closeModal">
-              Cerrar
-            </button>
-          </div>
+ 
         </div>
       </div>
       </transition>
@@ -272,7 +313,7 @@
     >
       Siguiente
     </button>
-  </div>
+    </div>
     
   </div>
 
@@ -317,22 +358,28 @@ onMounted(() => {
   window.addEventListener('resize', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     scrollModalActivo.value; // fuerza reevaluación
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    scrollPorPantallaPequena.value; // fuerza reevaluación 
+
   });
 });
 
 
 // Cargar datos iniciales
 const loadStarships = async () => {
-  const token = localStorage.getItem("token");
-
-  const res = await $fetch(`${config.public.API_URL}/api/starships`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  starships.value = res?.data ? res : { data: [] };
-};
+  cargandoNaves.value = true
+  try {
+    const token = localStorage.getItem("token")
+    const res = await $fetch(`${config.public.API_URL}/api/starships`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    starships.value = res?.data ? res : { data: [] }
+  } catch (e) {
+    console.error("Error cargando naves", e)
+  } finally {
+    cargandoNaves.value = false
+  }
+}
 
 
 
@@ -609,6 +656,15 @@ const deletePilot = async (starshipId, pilotId) => {
     loader.load('/models/pilot1.glb', () => {})
   })
 
+
+  const scrollPorPantallaPequena = computed(() => {
+    return window.innerWidth < 768; // true si es móvil
+  });
+
+
+  //spinner para naves
+
+  const cargandoNaves = ref(true)
 
 
 

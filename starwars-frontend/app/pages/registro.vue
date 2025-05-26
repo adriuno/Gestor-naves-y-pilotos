@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-900 px-8">
+  <div class="min-h-screen flex items-center justify-center bg-black px-8">
     <div class="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-lg">
       <h2 class="text-3xl text-center text-yellow-500 mb-8 custom-starwars">Registro</h2>
 
@@ -11,7 +11,7 @@
             placeholder="example123.."
             icon="i-lucide-user"
             class="w-full"
-            :ui="{ base: 'bg-gray-900 text-yellow-500' }"
+            :ui="{ base: 'bg-gray-800 text-yellow-500' }"
           />
 
             <p v-if="errors.username" class="text-red-500 italic text-xs mt-1">
@@ -26,7 +26,7 @@
             placeholder="mail@example.com"
             icon="i-lucide-mail"
             class="w-full"
-            :ui="{ base: 'bg-gray-900 text-yellow-500' }"
+            :ui="{ base: 'bg-gray-800 text-yellow-500' }"
           />
 
             <p v-if="errors.email" class="text-red-500 italic text-xs mt-1">

@@ -15,7 +15,7 @@
   
           <!-- <CardsPilots  />  -->
            <CarrouselSwip /> 
-           
+           <AppFooter />
         </main>
         
       </div>

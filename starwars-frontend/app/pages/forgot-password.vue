@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/html-self-closing -->
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-900 text-white px-4">
+  <div class="min-h-screen flex items-center justify-center bg-black text-white px-4">
     <div class="bg-gray-800 p-8 rounded-xl shadow-xl max-w-md w-full">
       <h1 class="text-xl text-center mb-6 text-yellow-400 custom-starwars">recuperar contraseña</h1>
 

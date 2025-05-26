@@ -68,7 +68,7 @@ const goTo = (section) => {
   router.push(`/${section}`)
 }
 
-const loadModel = (canvasRef, modelUrl, options = {}) => {
+const loadModel = async (canvasRef, modelUrl, options = {}) => {
   const scene = new THREE.Scene()
 
   const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
@@ -77,67 +77,60 @@ const loadModel = (canvasRef, modelUrl, options = {}) => {
   const renderer = new THREE.WebGLRenderer({
     canvas: canvasRef.value,
     alpha: true,
-    antialias: true,
+    antialias: false, // Desactiva si quieres más rendimiento
   })
   renderer.setSize(canvasRef.value.clientWidth, canvasRef.value.clientHeight)
   renderer.setPixelRatio(window.devicePixelRatio)
 
-  scene.add(new THREE.AmbientLight(0xffffff, 1.2))
+  // Luz ambiental más fuerte y cálida
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1.5)
+  scene.add(ambientLight)
 
-  const loader = new GLTFLoader()
-  let model = null
+  // Luz direccional que simula el sol
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5)
+  directionalLight.position.set(3, 5, 2)
+  scene.add(directionalLight)
 
+  let model
+
+  // Cacheo del modelo
   if (modelCache[modelUrl]) {
     model = modelCache[modelUrl].clone()
-    scene.add(model)
-    renderScene()
-    return
-  }
-
-  loader.load(modelUrl, (gltf) => {
+  } else {
+    const gltf = await new Promise((resolve, reject) => {
+      new GLTFLoader().load(modelUrl, resolve, undefined, reject)
+    })
     model = gltf.scene
     modelCache[modelUrl] = model.clone()
+  }
 
-    const scale = options.scale || 1.5
-    model.scale.set(scale, scale, scale)
-    model.position.set(0, -0.5, 0)
+  const scale = options.scale || 1.5
+  model.scale.set(scale, scale, scale)
+  model.position.set(0, -0.5, 0)
+  scene.add(model)
 
-    scene.add(model)
-    renderScene()
-  })
-
-  // Mouse tracking
   let mouseX = 0
   let mouseY = 0
-  let needsRender = false
 
+  const renderScene = () => {
+    model.rotation.y = mouseX * 1.5
+    model.rotation.x = mouseY * 1.0
+    renderer.render(scene, camera)
+  }
+
+  renderScene() // Primer render
+
+  // Solo renderizar cuando el ratón se mueva
   canvasRef.value.addEventListener('mousemove', (event) => {
     const rect = canvasRef.value.getBoundingClientRect()
     const x = (event.clientX - rect.left) / rect.width
     const y = (event.clientY - rect.top) / rect.height
     mouseX = (x - 0.5) * 6
     mouseY = (y - 0.5) * 2
-    needsRender = true
+    renderScene()
   })
-
-  const renderScene = () => {
-    if (model) {
-      model.rotation.y = mouseX * 1.5
-      model.rotation.x = mouseY * 1.0
-    }
-    renderer.render(scene, camera)
-    needsRender = false
-  }
-
-  const loop = () => {
-    if (needsRender) {
-      renderScene()
-    }
-    requestAnimationFrame(loop)
-  }
-
-  loop()
 }
+
 
 const autenticando = ref(true)
 
@@ -213,6 +206,39 @@ const cerrarSesion = async () => {
 
 definePageMeta({
   middleware: 'auth',
+})
+
+onMounted(() => {
+  const token = localStorage.getItem("token")
+  if (!token) {
+    return navigateTo("/login?unauthorized=true")
+  }
+
+  autenticando.value = false // 👉 Muestra la vista
+
+  // Precarga del componente /pilots
+  router.resolve('/pilots').matched.forEach((record) => {
+    if (record.components && typeof record.components.default === 'function') {
+      record.components.default()
+    }
+  })
+
+  // Precarga del componente /home (naves)
+  router.resolve('/home').matched.forEach((record) => {
+    if (record.components && typeof record.components.default === 'function') {
+      record.components.default()
+    }
+  })
+
+  // Precarga de datos de pilotos
+  fetch('http://localhost:8000/api/pilots')
+    .then(() => console.log('[Precarga] Pilotos precargados'))
+    .catch(() => console.warn('[Precarga] Error al precargar pilotos'))
+
+  // Precarga de datos de naves
+  fetch('http://localhost:8000/api/starships')
+    .then(() => console.log('[Precarga] Naves precargadas'))
+    .catch(() => console.warn('[Precarga] Error al precargar naves'))
 })
 
 

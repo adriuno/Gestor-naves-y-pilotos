@@ -83,6 +83,8 @@ class LoginController extends Controller
 
         return response()->json([
             'access_token' => $token,
+            'user' => $user, // para ver datos del usuario luego en frontend!!
+
         ]);
     }
 

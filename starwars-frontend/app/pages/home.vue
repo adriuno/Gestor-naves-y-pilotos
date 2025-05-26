@@ -15,6 +15,7 @@
   
           <!-- <CardsApp  />  -->
            <CardsApp />
+           <AppFooter />
         </main>
         
       </div>
