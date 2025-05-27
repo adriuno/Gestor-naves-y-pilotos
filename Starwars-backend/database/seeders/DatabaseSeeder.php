@@ -13,14 +13,14 @@ class DatabaseSeeder extends Seeder
     {
         // Crear usuarios
         $user1 = User::factory()->create([
-            'username' => 'user22',
-            'email' => 'prueba@asd.com',
+            'username' => 'admin',
+            'email' => 'admin@asd.com',
             'admin' => true,
         ]);
 
         $user2 = User::factory()->create([
-            'username' => 'normal',
-            'email' => 'user@test.com',
+            'username' => 'user-prueba',
+            'email' => 'user@prueba.com',
             'admin' => false,
         ]);
 

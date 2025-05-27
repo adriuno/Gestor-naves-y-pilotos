@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'required' => 'El  :attribute es obligatorio.',
+    'required' => 'El campo :attribute es obligatorio.',
     'email' => 'El  :attribute debe ser una dirección de correo válida.',
     'min' => [
         'string' => 'El :attribute debe tener al menos :min caracteres.',
@@ -24,8 +24,8 @@ return [
 
 
     'attributes' => [
-        'username' => ' "nombre de usuario" ',
-        'email' => ' "email" ',
-        'password' => ' "contraseña" ',
+        'username' => ' "Nombre de usuario" ',
+        'email' => ' "Email" ',
+        'password' => ' "Contraseña" ',
     ],
 ];

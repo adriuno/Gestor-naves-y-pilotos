@@ -8,7 +8,7 @@
           <label class="text-white">Nombre de usuario</label>
           <UInput
             v-model="form.username"
-            placeholder="example123.."
+            placeholder="Usuario3.."
             icon="i-lucide-user"
             class="w-full"
             :ui="{ base: 'bg-gray-800 text-yellow-500' }"
@@ -23,7 +23,7 @@
           <label class="text-white">Email</label>
           <UInput
             v-model="form.email"
-            placeholder="mail@example.com"
+            placeholder="Usuario3@ejemplo.com"
             icon="i-lucide-mail"
             class="w-full"
             :ui="{ base: 'bg-gray-800 text-yellow-500' }"
@@ -39,7 +39,7 @@
           <UInput
             v-model="form.password"
             :type="show ? 'text' : 'password'"
-            placeholder="contraseña..."
+            placeholder="Secreto123..."
             icon="i-lucide-lock"
             class="w-full"
             :ui="{ base: 'bg-gray-800 text-yellow-500', trailing: 'pe-1' }"

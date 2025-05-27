@@ -26,6 +26,7 @@
             v-model="form.email"
             class="w-full"
             icon="i-lucide-mail"
+            type="email"
             placeholder="Email"
             :ui="{ base: 'bg-gray-800 text-yellow-500' }"
           />
@@ -46,7 +47,7 @@
             <UInput
               v-model="form.password"
               placeholder="Contraseña"
-              icon="i-lucide-text"
+              icon="i-lucide-text"             
               :type="show ? 'text' : 'password'"
               :ui="{ base: 'bg-gray-800 text-yellow-00', trailing: 'pe-1' }"
               class="w-full"
@@ -64,7 +65,7 @@
                 />
               </template>
             </UInput>
-            <p v-if="errors.password" class="text-red-500 text-sm mt-1 italic">
+            <p v-if="errors.password" class="text-red-500 text-xs mt-1 italic">
               {{ errors.password[0] }}
             </p>
             <div v-if="errorGlobal" class="text-red-500 text-xs mb-4 mt-2 text-center italic">
@@ -201,6 +202,13 @@ const loginWithGoogle = () => {
 // eslint-disable-next-line nuxt/prefer-import-meta
 if (process.client && router.currentRoute.value.query.access_token !== undefined) {
   localStorage.setItem('token', router.currentRoute.value.query.access_token)
+
+    const userString = router.currentRoute.value.query.user
+  if (userString) {
+    const user = JSON.parse(decodeURIComponent(userString))
+    localStorage.setItem('user', JSON.stringify(user))
+  }
+
   router.push('/options')
 }
 

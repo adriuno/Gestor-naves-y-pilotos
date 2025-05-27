@@ -2,7 +2,7 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-black text-white px-4">
     <div class="bg-gray-800 p-8 rounded-xl shadow-xl max-w-md w-full">
-      <h1 class="text-xl text-center mb-6 text-yellow-400 custom-starwars">recuperar contraseña</h1>
+      <h1 class="text-xl text-center mb-6 text-yellow-400 custom-starwars">recuperar clave</h1>
 
       <input
         v-model="email"

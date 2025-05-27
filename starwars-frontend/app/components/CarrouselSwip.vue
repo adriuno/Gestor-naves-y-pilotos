@@ -2,7 +2,7 @@
 <template>
   <div>
     <!-- Buscador -->
-    <div class="flex justify-center mt-3 ">
+    <div class="flex justify-center mt-3">
       <div class="relative w-full max-w-md">
         <input
           v-model="busqueda"
@@ -16,14 +16,13 @@
       </div>
     </div>
 
-
-      <!-- Spinner de carga -->
-  <div v-if="cargandoPilotos" class="flex justify-center items-center my-12">
-    <i class="fas fa-spinner fa-spin text-yellow-400 text-4xl"></i>
-  </div>
+    <!-- Spinner de carga -->
+    <div v-if="cargandoPilotos" class="flex justify-center items-center my-12">
+      <i class="fas fa-spinner fa-spin text-yellow-400 text-4xl"></i>
+    </div>
 
     <!-- Carrusel con pilotos -->
-    <div v-if="pilots.length" class="">
+    <div v-if="pilots.length">
       <Swiper
         :modules="[Navigation, Mousewheel, EffectCoverflow]"
         effect="coverflow"
@@ -61,43 +60,17 @@
       No se encontraron pilotos con ese nombre.
     </p>
 
-    <!-- Paginación -->
-    <div v-if="totalPaginas > 1" class="flex justify-center mt-15 items-center gap-4 mt-5 custom-starwars">
-      <button
-        :disabled="pagina === 1"
-        class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
-        @click="pagina--"
-      >
-        Anterior
-      </button>
-
-      <button
-        v-for="p in paginasVisibles"
-        :key="p"
-        :class="[
-          'px-3 py-1 rounded',
-          pagina === p
-            ? 'bg-yellow-400 text-black rounded-full drop-shadow-[0_0_8px_#38bdf8]'
-            : 'text-white'
-        ]"
-        @click="pagina = p"
-      >
-        {{ p }}
-      </button>
-
-      <button
-        :disabled="pagina === totalPaginas"
-        class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
-        @click="pagina++"
-      >
-        Siguiente
-      </button>
-    </div>
-
     <!-- Modal con más datos del piloto -->
     <transition name="modal-fade">
-      <div v-if="modalPiloto" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-30" @click.self="cerrarModal">
-        <div class="bg-gray-900 rounded-xl p-6 text-white w-full max-w-4xl shadow-xl flex flex-col md:flex-row gap-6">
+      <div
+        v-if="modalPiloto"
+        class="fixed inset-0 bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-30"
+        @click.self="cerrarModal"
+      >
+        <div
+          class="rounded-xl p-6 text-white w-full max-w-4xl shadow-xl flex flex-col md:flex-row gap-6"
+          :style="`background-image: url('images/fondoPilotos3.jpg'); background-repeat: no-repeat; background-size: cover; background-position: center;`"
+        >
           <!-- Imagen -->
           <div class="flex justify-center md:justify-start">
             <img :src="modalPiloto.image_url" alt="imagen piloto" class="w-52 h-52 object-cover rounded-full border-4 border-yellow-500" />
@@ -108,8 +81,7 @@
             <h2 class="text-2xl text-yellow-400 font-bold mb-4">{{ modalPiloto.name }}</h2>
 
             <div class="space-y-2 text-sm text-gray-300">
-              <p><strong class="text-yellow-400">Género:</strong> {{ modalPiloto.gender || 'Desconocido' }}</p>
-              <p><strong class="text-yellow-400">Planeta:</strong> {{ modalPiloto.homeworld || 'Desconocido' }}</p>
+              <p><strong class="text-yellow-400">Género:</strong> {{ genderTraduction(modalPiloto.gender) }}</p>
 
               <p><strong class="text-yellow-400">Películas:</strong></p>
               <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -122,17 +94,14 @@
               </div>
 
               <p><strong class="text-yellow-400">Naves:</strong></p>
-                <ul class="list-disc list-inside ml-2">
-                  <template v-if="modalPiloto.starships?.length">
-                    <li
-                      v-for="(ship, index) in uniqueStarships"
-                      :key="index"
-                    >
-                      {{ ship.name }}
-                    </li>
-                  </template>
-                  <li v-else class="italic text-gray-400">No asignado a ninguna nave</li>
-                </ul>
+              <ul class="list-disc list-inside ml-2">
+                <template v-if="modalPiloto.starships?.length">
+                  <li v-for="(ship, index) in uniqueStarships" :key="index">
+                    {{ ship.name }}
+                  </li>
+                </template>
+                <li v-else class="italic text-gray-400">No asignado a ninguna nave</li>
+              </ul>
             </div>
 
             <!-- Botón cerrar -->
@@ -141,10 +110,8 @@
             </div>
           </div>
         </div>
-
       </div>
     </transition>
-    
   </div>
 </template>
 
@@ -159,12 +126,10 @@ import 'swiper/css/effect-coverflow'
 const config = useRuntimeConfig()
 
 const pilots = ref([])
-const totalPaginas = ref(1)
-const pagina = ref(1)
 const busqueda = ref('')
 const modalPiloto = ref(null)
+const cargandoPilotos = ref(false)
 
-// Diccionario de películas
 const filmMap = {
   "https://swapi.dev/api/films/1/": "/images/films/1.webp",
   "https://swapi.dev/api/films/2/": "/images/films/2.webp",
@@ -174,82 +139,60 @@ const filmMap = {
   "https://swapi.dev/api/films/6/": "/images/films/6.webp",
 }
 
-
-const cargandoPilotos = ref(false) // id de la nave para la que se cargan pilotos
-
-
-
-
-
 const fetchPilotsFromStarships = async () => {
   cargandoPilotos.value = true
-  const token = localStorage.getItem('token');
-  if (!token) return navigateTo('/login?unauthorized=true');
+  const token = localStorage.getItem('token')
+  if (!token) return navigateTo('/login?unauthorized=true')
 
   try {
     const res = await $fetch(`${config.public.API_URL}/api/starships`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      headers: { Authorization: `Bearer ${token}` },
+    })
 
-    const allStarships = res.data || [];
-    const pilotMap = {};
+    const allStarships = res.data || []
+    const pilotMap = {}
 
     for (const ship of allStarships) {
       for (const pilot of ship.pilots || []) {
-        if (!pilotMap[pilot.id]) {
-          pilotMap[pilot.id] = {
+        const pilotId = Number(pilot.id)
+        if (!pilotMap[pilotId]) {
+          pilotMap[pilotId] = {
             ...pilot,
             starships: [{ name: ship.name }]
-          };
+          }
         } else {
-          pilotMap[pilot.id].starships.push({ name: ship.name });
+          if (!pilotMap[pilotId].starships.some(s => s.name === ship.name)) {
+            pilotMap[pilotId].starships.push({ name: ship.name })
+          }
         }
       }
     }
 
-    let filtered = Object.values(pilotMap);
-    const term = busqueda.value.trim().toLowerCase();
+    let filtered = Object.values(pilotMap)
+    const term = busqueda.value.trim().toLowerCase()
     if (term) {
-      filtered = filtered.filter(p => p.name.toLowerCase().includes(term));
+      filtered = filtered.filter(p => p.name.toLowerCase().includes(term))
     }
 
-    filtered.sort((a, b) => a.name.localeCompare(b.name));
-
-    const perPage = 5;
-    totalPaginas.value = Math.ceil(filtered.length / perPage);
-    const start = (pagina.value - 1) * perPage;
-    const end = start + perPage;
-
-    pilots.value = filtered.slice(start, end);
+    filtered.sort((a, b) => a.name.localeCompare(b.name))
+    pilots.value = filtered
 
   } catch (err) {
     if (err?.response?.status === 401) {
-      localStorage.removeItem('token');
-      navigateTo('/login?unauthorized=true');
+      localStorage.removeItem('token')
+      navigateTo('/login?unauthorized=true')
     } else {
-      console.error('Error al cargar pilotos desde starships:', err);
+      console.error('Error al cargar pilotos desde starships:', err)
     }
   } finally {
     cargandoPilotos.value = false
   }
 }
 
-
-
 onMounted(fetchPilotsFromStarships)
 
-watch([pagina, busqueda], () => {
+watch(busqueda, () => {
   fetchPilotsFromStarships()
-})
-
-const paginasVisibles = computed(() => {
-  const paginas = []
-  if (pagina.value > 1) paginas.push(pagina.value - 1)
-  paginas.push(pagina.value)
-  if (pagina.value < totalPaginas.value) paginas.push(pagina.value + 1)
-  return paginas
 })
 
 const abrirModal = (pilot) => {
@@ -279,11 +222,18 @@ const uniqueStarships = computed(() => {
 
 
 
+const genderTraduction = (gender) => {
+  switch (gender?.toLowerCase()) {
+    case 'male':
+      return 'Masculino'
+    case 'female':
+      return 'Femenino'
+    default:
+      return 'Desconocido'
+  }
+}
+
 </script>
-
-
-
-
 
 <style scoped>
 .pilot-carousel {

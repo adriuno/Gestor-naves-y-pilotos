@@ -34,40 +34,59 @@
     </div>
 
     <!--  ---------------  PAGINACIÓN  ---------------- -->
-    <div v-if="totalPaginas > 1" class="flex justify-center items-center gap-4 mt-15 custom-starwars">
-    <!-- Botón Anterior -->
-    <button
-      :disabled="pagina === 1"
-      class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
-      @click="pagina--"
-    >
-      Anterior
-    </button>
+    <div v-if="totalPaginas > 1" class="flex justify-center items-center gap-4 mt-5 custom-starwars">
+      <!-- Botón Primera Página -->
+      <button
+        :disabled="pagina === 1"
+        class="px-2 py-1 text-yellow-400 text-5xl disabled:opacity-50 hover:bg-yellow-400 hover:text-black rounded-4xl"
+        @click="pagina = 1"
+      >
+        «
+      </button>
 
-    <!-- Botones de página: anterior, actual, siguiente -->
-    <button
-      v-for="paginaActual in paginasVisibles"
-      :key="paginaActual"
-      :class="[
-        'px-3 py-1 rounded',
-        pagina === paginaActual
-          ? 'bg-yellow-400 text-black rounded-full drop-shadow-[0_0_8px_#38bdf8]'
-          : 'text-white'
-      ]"
-      @click="pagina = paginaActual"
-    >
-      {{ paginaActual }}
-    </button>
+      <!-- Botón Anterior -->
+      <button
+        :disabled="pagina === 1"
+        class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
+        @click="pagina--"
+      >
+        Anterior
+      </button>
 
-    <!-- Botón Siguiente -->
-    <button
-      :disabled="pagina === totalPaginas"
-      class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
-      @click="pagina++"
-    >
-      Siguiente
-    </button>
+      <!-- Botones de páginas -->
+      <button
+        v-for="paginaActual in paginasVisibles"
+        :key="paginaActual"
+        :class="[
+          'px-3 py-1 rounded',
+          pagina === paginaActual
+            ? 'bg-yellow-400 text-black rounded-full drop-shadow-[0_0_8px_#38bdf8]'
+            : 'text-white'
+        ]"
+        @click="pagina = paginaActual"
+      >
+        {{ paginaActual }}
+      </button>
+
+      <!-- Botón Siguiente -->
+      <button
+        :disabled="pagina === totalPaginas"
+        class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
+        @click="pagina++"
+      >
+        Siguiente
+      </button>
+
+      <!-- Botón Última Página -->
+      <button
+        :disabled="pagina === totalPaginas"
+        class="px-2 py-1 text-yellow-400 text-5xl disabled:opacity-50 hover:bg-yellow-400 hover:text-black rounded-4xl"
+        @click="pagina = totalPaginas"
+      >
+        »
+      </button>
     </div>
+
 
 
 
@@ -154,7 +173,7 @@
       </div>
 
     <!-- else buscador -->
-      <div v-else class="text-center text-yellow-400 text-xl mt-12">
+      <div v-else class="text-center text-yellow-400 text-lg mt-12">
         En esta galaxia no se ha encontrado tu nave/piloto indicado!!!
       </div>
     </div>
@@ -281,40 +300,58 @@
 
     <!--  ---------------  PAGINACIÓN  ---------------- -->
     <div v-if="totalPaginas > 1" class="flex justify-center items-center gap-4 mt-5 custom-starwars">
-    <!-- Botón Anterior -->
-    <button
-      :disabled="pagina === 1"
-      class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
-      @click="pagina--"
-    >
-      Anterior
-    </button>
+      <!-- Botón Primera Página -->
+      <button
+        :disabled="pagina === 1"
+        class="px-2 py-1 text-yellow-400 text-5xl disabled:opacity-50 hover:bg-yellow-400 hover:text-black rounded-4xl"
+        @click="pagina = 1"
+      >
+        «
+      </button>
 
-    <!-- Botones de página: anterior, actual, siguiente -->
-    <button
-      v-for="paginaActual in paginasVisibles"
-      :key="paginaActual"
-      :class="[
-        'px-3 py-1 rounded',
-        pagina === paginaActual
-          ? 'bg-yellow-400 text-black rounded-full drop-shadow-[0_0_8px_#38bdf8]'
-          : 'text-white'
-      ]"
-      @click="pagina = paginaActual"
-    >
-      {{ paginaActual }}
-    </button>
+      <!-- Botón Anterior -->
+      <button
+        :disabled="pagina === 1"
+        class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
+        @click="pagina--"
+      >
+        Anterior
+      </button>
 
-    <!-- Botón Siguiente -->
-    <button
-      :disabled="pagina === totalPaginas"
-      class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
-      @click="pagina++"
-    >
-      Siguiente
-    </button>
+      <!-- Botones de páginas -->
+      <button
+        v-for="paginaActual in paginasVisibles"
+        :key="paginaActual"
+        :class="[
+          'px-3 py-1 rounded',
+          pagina === paginaActual
+            ? 'bg-yellow-400 text-black rounded-full drop-shadow-[0_0_8px_#38bdf8]'
+            : 'text-white'
+        ]"
+        @click="pagina = paginaActual"
+      >
+        {{ paginaActual }}
+      </button>
+
+      <!-- Botón Siguiente -->
+      <button
+        :disabled="pagina === totalPaginas"
+        class="px-4 py-2 bg-yellow-400 text-black rounded-3xl disabled:opacity-50 active:bg-yellow-600"
+        @click="pagina++"
+      >
+        Siguiente
+      </button>
+
+      <!-- Botón Última Página -->
+      <button
+        :disabled="pagina === totalPaginas"
+        class="px-2 py-1 text-yellow-400 text-5xl disabled:opacity-50 hover:bg-yellow-400 hover:text-black rounded-4xl"
+        @click="pagina = totalPaginas"
+      >
+        »
+      </button>
     </div>
-    
+
   </div>
 
 
