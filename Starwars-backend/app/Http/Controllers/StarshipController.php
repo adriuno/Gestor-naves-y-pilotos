@@ -25,48 +25,48 @@ class StarshipController extends Controller
         return Starship::with('pilots')->orderBy('name')->get();
     }
 
- public function index(Request $request)
-{
-    // Sacamos el token de la cabecera Authorization
-    $tokenHeader = $request->bearerToken();
+    public function index(Request $request)
+    {
+        // Sacamos el token de la cabecera Authorization
+        $tokenHeader = $request->bearerToken();
 
-    if (!$tokenHeader) {
-        return response()->json(['error' => 'Token no proporcionado'], 401);
+        if (!$tokenHeader) {
+            return response()->json(['error' => 'Token no proporcionado'], 401);
+        }
+
+        // Buscamos el token en la base de datos
+        $accessToken = PersonalAccessToken::findToken($tokenHeader);
+
+        if (!$accessToken) {
+            return response()->json(['error' => 'Token inválido'], 401);
+        }
+
+        // Obtenemos al usuario desde el token
+        $user = $accessToken->tokenable;
+
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no encontrado'], 401);
+        }
+
+        // Ahora sí podemos acceder a sus starships
+        $buscar = $request->query('buscar', '');
+        $orden = 'name';
+
+        $starships = $user->starships()
+            ->with('pilots')
+            ->when($buscar, function ($query) use ($buscar) {
+                $query->where(function ($q) use ($buscar) {
+                    $q->where('name', 'like', "%{$buscar}%")
+                        ->orWhereHas('pilots', function ($q2) use ($buscar) {
+                            $q2->where('name', 'like', "%{$buscar}%");
+                        });
+                });
+            })
+            ->orderBy($orden)
+            ->paginate(36);
+
+        return response()->json($starships);
     }
-
-    // Buscamos el token en la base de datos
-    $accessToken = PersonalAccessToken::findToken($tokenHeader);
-
-    if (!$accessToken) {
-        return response()->json(['error' => 'Token inválido'], 401);
-    }
-
-    // Obtenemos al usuario desde el token
-    $user = $accessToken->tokenable;
-
-    if (!$user) {
-        return response()->json(['error' => 'Usuario no encontrado'], 401);
-    }
-
-    // Ahora sí podemos acceder a sus starships
-    $buscar = $request->query('buscar', '');
-    $orden = 'name';
-
-    $starships = $user->starships()
-        ->with('pilots')
-        ->when($buscar, function ($query) use ($buscar) {
-            $query->where(function ($q) use ($buscar) {
-                $q->where('name', 'like', "%{$buscar}%")
-                    ->orWhereHas('pilots', function ($q2) use ($buscar) {
-                        $q2->where('name', 'like', "%{$buscar}%");
-                    });
-            });
-        })
-        ->orderBy($orden)
-        ->paginate(36);
-
-    return response()->json($starships);
-}
 
 
 

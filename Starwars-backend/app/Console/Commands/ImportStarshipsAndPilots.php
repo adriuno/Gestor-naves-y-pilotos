@@ -104,18 +104,18 @@ class ImportStarshipsAndPilots extends Command
     private function getPilotImage(string $name, array $characters): ?string
     {
         foreach ($characters as $char) {
-                if (strcasecmp($char['name'], $name) === 0) {
-                    if ($char['name'] === 'Arvel Crynyd') {
-                        return asset('storage/images/pilots/arvel2.jpg');
-                    }
-                    if ($char['name'] === 'Grievous') {
-                        return asset('storage/images/pilots/griev.jpg');
-                    }
-                    if ($char['name'] === 'Wedge Antilles') {
-                        return asset('storage/images/pilots/wedge.jpg');
-                    }
-                    return $char['image'];
+            if (strcasecmp($char['name'], $name) === 0) {
+                if ($char['name'] === 'Arvel Crynyd') {
+                    return asset('storage/images/pilots/arvel2.jpg');
                 }
+                if ($char['name'] === 'Grievous') {
+                    return asset('storage/images/pilots/griev.jpg');
+                }
+                if ($char['name'] === 'Wedge Antilles') {
+                    return asset('storage/images/pilots/wedge.jpg');
+                }
+                return $char['image'];
+            }
         }
         // Imagen por defecto si no se encuentra en el array de personajes
         return asset('storage/images/pilots/wedge.jpg');

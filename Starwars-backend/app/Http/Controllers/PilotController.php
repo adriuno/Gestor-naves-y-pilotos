@@ -10,29 +10,29 @@ class PilotController extends Controller
 {
     //
 
-public function index(Request $request)
-{
-    $order = $request->get('order', 'asc');
-    $search = $request->get('search');
+    public function index(Request $request)
+    {
+        $order = $request->get('order', 'asc');
+        $search = $request->get('search');
 
-    // ID del usuario autenticado
-    $userId = Auth::id();
+        // ID del usuario autenticado
+        $userId = Auth::id();
 
-    // Pilotos que están en naves del usuario
-    $query = Pilot::whereHas('starships', function ($q) use ($userId) {
-        $q->where('user_id', $userId);
-    })->with('starships') // incluye las naves directamente
-      ->orderBy('name', $order);
+        // Pilotos que están en naves del usuario
+        $query = Pilot::whereHas('starships', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })->with('starships') // incluye las naves directamente
+            ->orderBy('name', $order);
 
-    if ($search) {
-        $query->where('name', 'like', "%{$search}%");
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        return $query->paginate(5);
     }
 
-    return $query->paginate(5);
-}
 
-
-/*
+    /*
     public function index(Request $request)
     {
         $order = $request->get('order', 'asc'); 
@@ -45,7 +45,7 @@ public function index(Request $request)
 
     // por defecto ascendente, así luego desde NUXT se puede manejar el ordenamiento
     // $fetch(`/api/pilots?page=${page.value}&order=asc`)
-    
+
 
     public function destroy($id)
     {

@@ -11,7 +11,7 @@ use Illuminate\Validation\Rules;
 class ResetPasswordController extends Controller
 {
     // Enviar enlace de restablecimiento de contraseña.
-     
+
     public function sendResetLink(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -20,13 +20,20 @@ class ResetPasswordController extends Controller
             $request->only('email')
         );
 
-        return $status === Password::RESET_LINK_SENT
-            ? response()->json(['message' => __($status)], 200)
-            : response()->json(['message' => __($status)], 422);
+        if ($status === Password::RESET_LINK_SENT) {
+            return response()->json(['message' => trans($status)], 200);
+        }
+
+        if ($status === Password::INVALID_USER) {
+            return response()->json(['error' => trans($status)], 404);
+        }
+
+        return response()->json(['error' => 'Error al enviar el enlace.'], 422);
     }
 
+
     // Restablecer la contraseña usando el token recibido.
-    
+
     public function resetPassword(Request $request)
     {
         $request->validate([

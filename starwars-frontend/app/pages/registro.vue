@@ -87,7 +87,14 @@
 
         <div class="text-center text-white mt-8">        
           <p class="custom-starwars mb-5">¿ya tienes cuenta?</p>
-          <nuxt-link to="login" class="block w-full btn rounded-4xl bg-blue-500 p-2 hover:bg-blue-600">Iniciar sesión</nuxt-link>
+          <!-- <nuxt-link to="login" class="block w-full btn rounded-4xl bg-blue-500 p-2 hover:bg-blue-600">Iniciar sesión</nuxt-link> -->
+          <UButton
+            class="block w-full btn rounded-4xl bg-blue-500 p-2 hover:bg-blue-600"
+            @click="irAlLogin"
+          >
+            Iniciar sesión
+          </UButton>
+          <!-- he tenido que sustituir NUXT-LINK porque si no NO quita la transición de vuelta a LOGIN -->
         </div> 
       </UForm>
     </div>
@@ -155,7 +162,9 @@ const handleSubmit = async () => {
       timer: 3000,
       showConfirmButton: false,
     })
-    navigateTo('/login')
+
+    irAlLogin()
+
   } catch (err) {
 
     if (err?.data?.errors) {
@@ -170,6 +179,12 @@ const handleSubmit = async () => {
       })
     }
   }
+}
+
+
+const irAlLogin = () => {
+  sessionStorage.setItem('fromRegister', 'true')
+  navigateTo('/login')
 }
 
 </script>

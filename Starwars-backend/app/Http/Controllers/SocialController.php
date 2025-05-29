@@ -35,14 +35,12 @@ class SocialController extends Controller
 
             // Creamos igual aquí tbn un token para el usuario
             $token = $user->createToken('AuthToken')->plainTextToken;
-        
+
             return redirect()->to('http://localhost:3000/login?access_token=' . $token . '&user=' . urlencode(json_encode([
                 'id' => $user->id,
                 'username' => $user->username,
                 'email' => $user->email,
             ])));
-
-
         } catch (\Exception $e) {
             return response()->json(['error' => 'Fallo en login con Google: ' . $e->getMessage()], 500);
         }

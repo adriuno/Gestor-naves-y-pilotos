@@ -45,19 +45,17 @@
     </button>
 
     <!-- Capa de transición negra que sube -->
-    <transition name="cortina-slide" @after-enter="redirigirLogin">
+    <transition name="cortina-slide">
       <div
         v-if="mostrandoTransicion"
         class="absolute inset-0 z-20 bg-black flex items-center justify-center"
-      >
-        <!-- Puedes poner un loader aquí si quieres -->
-      </div>
+      />
     </transition>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -66,12 +64,22 @@ const volume = ref(0)
 const reproduccion = ref(true)
 const mostrandoTransicion = ref(false)
 
-const lanzarTransicion = () => {
-  mostrandoTransicion.value = true
-}
+// ⛔️ Si ya ha visto la intro antes, redirigir directamente
+onMounted(() => {
+  const introVista = localStorage.getItem('introVista')
+  if (introVista) {
+    router.replace('/login')
+  }
+})
 
-const redirigirLogin = () => {
-  router.push('/login')
+// ✅ Marca como vista y lanza la animación de salida
+const lanzarTransicion = async () => {
+  localStorage.setItem('introVista', 'true')
+  mostrandoTransicion.value = true
+  await nextTick()
+  setTimeout(() => {
+    router.push('/login')
+  }, 1000) // Coincide con duración CSS de transición
 }
 
 const initVideo = () => {
