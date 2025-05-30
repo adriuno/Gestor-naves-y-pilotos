@@ -7,45 +7,44 @@
   </div>
 
   <div v-if="!autenticando">
-    <!-- Buscador -->
     <!-- Buscador con autocompletado -->
     <div class="flex justify-center mt-6">
       <!-- Input de búsqueda -->
       <div class="relative w-full max-w-md">
-      <input
-        v-model="busqueda"
-        type="text"
-        placeholder="Buscar nave/piloto..."
-        class="w-full pl-10 p-2 border border-yellow-500 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring focus:drop-shadow-[0_0_8px_#38bdf8]"
-        @focus="mostrarSugerencias = true"
-        @blur="ocultarSugerenciasConRetardo"
-        @input="actualizarSugerencias"
-      />
+        <input
+          v-model="busqueda"
+          type="text"
+          placeholder="Buscar nave/piloto..."
+          class="w-full pl-10 p-2 border border-yellow-500 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring focus:drop-shadow-[0_0_8px_#38bdf8]"
+          aria-label="Buscar nave o piloto"
+          @focus="mostrarSugerencias = true"
+          @blur="ocultarSugerenciasConRetardo"
+          @input="actualizarSugerencias"
+        />
 
-      <!-- Icono de lupa -->
-      <div
-        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-      >
-        <i class="fas fa-search" />
-      </div>
-
-      <!-- Sugerencias -->
-      <ul
-        v-if="mostrarSugerencias && sugerencias.length"
-        class="absolute z-20 mt-1 w-full bg-gray-900 border rounded-lg shadow-lg max-h-60 overflow-y-auto"
-      >
-        <li
-          v-for="(item, i) in sugerencias"
-          :key="i"
-          class="px-4 py-2 hover:bg-yellow-400/80 hover:text-black font-semibold cursor-pointer transition text-left"
-          @mousedown.prevent="seleccionarSugerencia(item)"
+        <!-- Icono de lupa -->
+        <div
+          class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+          aria-hidden="true"
         >
-          {{ item }}
-        </li>
-      </ul>
+          <i class="fas fa-search" />
+        </div>
 
+        <!-- Sugerencias -->
+        <ul
+          v-if="mostrarSugerencias && sugerencias.length"
+          class="absolute z-20 mt-1 w-full bg-gray-900 border rounded-lg shadow-lg max-h-60 overflow-y-auto"
+        >
+          <li
+            v-for="(item, i) in sugerencias"
+            :key="i"
+            class="px-4 py-2 hover:bg-yellow-400/80 hover:text-black font-semibold cursor-pointer transition text-left"
+            @mousedown.prevent="seleccionarSugerencia(item)"
+          >
+            {{ item }}
+          </li>
+        </ul>
       </div>
-
     </div>
 
     <!--  ---------------  PAGINACIÓN  ---------------- -->
@@ -159,7 +158,7 @@
                   class="w-full p-2 rounded-xl bg-gray-800 text-white border border-gray-600"
                 >
                   <option disabled value="">Selecciona un piloto</option>
-                  <option 
+                  <option
                     v-for="pilot in availablePilots"
                     :key="pilot.id"
                     :value="pilot.id"
@@ -194,7 +193,7 @@
 
             <div class="mt-auto flex justify-center mb-6">
               <button
-                class="px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-lg focus:outline-none transition hover:drop-shadow-[0_0_5px_#38bdf8]"
+                class="px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-lg transition hover:drop-shadow-[0_0_5px_#38bdf8]"
                 @click="openModal(starship)"
               >
                 Detalles
@@ -216,11 +215,18 @@
       <div
         v-if="showModal"
         class="fixed inset-0 bg-opacity-50 flex backdrop-blur-sm justify-center items-center z-50"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-modal"
+        aria-describedby="contenido-modal"
+        tabindex="-1"
         @click.self="closeModal"
       >
         <!-- Modal con tamaño fijo, sin scroll -->
         <!-- <div class="bg-white rounded-lg p-6 w-full max-w-3xl shadow-xl"> -->
         <div
+          ref="modalRef"
+        tabindex="-1"
           class="relative rounded-4xl p-6 w-full max-w-3xl shadow-xl bg-cover bg-center text-white max-h-[90vh]"
           :class="{
             'overflow-y-auto': scrollModalActivo || scrollPorPantallaPequena,
@@ -229,6 +235,8 @@
         >
           <!-- Cabecera -->
           <h3
+            id="titulo-modal"
+            tabindex="0"
             class="text-2xl font-bold text-center text-black mb-4 bg-yellow-500 py-1 rounded-xl"
           >
             {{ modalStarship.name }}
@@ -238,39 +246,55 @@
           <div class="flex justify-center mb-4">
             <img
               :src="modalStarship.image2_url"
-              alt="Imagen de {{ modalStarship.name }}"
+              :alt="`Imagen de la nave ${modalStarship.name}`"
               class="h-48 sm:h-60 object-contain rounded-xl shadow-md"
             />
           </div>
 
           <!-- Detalles alineados a la izquierda y centrados en la modal -->
-          <div class="mx-auto text-left w-fit space-y-2">
+          <div class="mx-auto text-left w-fit space-y-2" role="group">
             <p class="text-sm sm:text-base">
               <strong
                 class="bg-yellow-500 text-black px-3 py-1 rounded-full shadow font-semibold"
-                >Modelo:</strong
               >
-              {{ modalStarship.model }}
+                Modelo:
+              </strong>
+              <span tabindex="0" aria-label="Modelo de la nave">{{
+                modalStarship.model
+              }}</span>
             </p>
             <p class="text-sm sm:text-base">
               <strong
                 class="bg-yellow-500 text-black px-3 py-1 rounded-full shadow font-semibold"
-                >Fabricante:</strong
               >
-              {{ modalStarship.manufacturer }}
+                Fabricante:
+              </strong>
+              <span tabindex="0" aria-label="Fabricante de la nave">{{
+                modalStarship.manufacturer
+              }}</span>
             </p>
             <p class="text-sm sm:text-base">
               <strong
                 class="bg-yellow-500 text-black px-3 py-1 rounded-full shadow font-semibold"
-                >Coste:</strong
               >
-              {{ modalStarship.cost_in_credits || "Desconocido" }} uds.
+                Coste:
+              </strong>
+              <span tabindex="0" aria-label="Coste en créditos galácticos">
+                {{ modalStarship.cost_in_credits || "Desconocido" }} uds.
+              </span>
             </p>
           </div>
 
           <!-- Pilotos -->
-          <div class="mt-8">
+          <div
+            class="mt-8"
+            role="region"
+            aria-labelledby="heading-pilotos"
+            tabindex="0"
+          >
+            <!-- Título con ID para aria-labelledby -->
             <h4
+              id="heading-pilotos"
               class="text-xl font-bold mb-2 bg-yellow-500 text-black py-1 px-2 rounded-xl"
             >
               Pilotos:
@@ -280,6 +304,9 @@
             <div
               v-if="modalStarship.pilots.length === 0"
               class="text-yellow-500 text-center py-4"
+              role="alert"
+              aria-live="polite"
+              tabindex="0"
             >
               <p>¡Sin pilotos!</p>
               <p>Añade tus pilotos favoritos y que la fuerza os acompañe</p>
@@ -289,61 +316,69 @@
             <div
               v-else-if="modalStarship.pilots.length === 1"
               class="max-h-64 overflow-y-auto pr-2 flex justify-center"
+              role="list"
+              aria-label="Piloto asignado a esta nave"
             >
               <div
                 v-for="pilot in modalStarship.pilots"
                 :key="pilot.id"
+                role="listitem"
                 class="flex items-center justify-between gap-2 rounded-lg px-4 py-2 w-[15rem]"
+                tabindex="0"
               >
                 <div class="flex items-center gap-2">
                   <img
                     :src="pilot.image_url"
-                    alt="Imagen del piloto"
                     class="w-12 h-12 rounded-full border border-yellow-500 object-cover"
                   />
                   <span class="text-md text-white">{{ pilot.name }}</span>
                 </div>
                 <button
-                  aria-label="Borrar piloto"
+                  :aria-label="`Eliminar al piloto ${pilot.name}`"
                   class="text-white hover:scale-120 hover:bg-red-600 p-3 rounded-lg transition"
                   @click="deletePilot(modalStarship.id, pilot.id)"
                 >
-                  <i class="fas fa-trash" />
+                  <i class="fas fa-trash" aria-hidden="true" />
                 </button>
               </div>
             </div>
 
-            <!-- Si hay más de 1 piloto -->
+            <!-- Si hay varios pilotos -->
             <div
               v-else
               class="max-h-64 overflow-y-auto w-2xl ml-8 pr-2 grid grid-cols-2 gap-x-27 gap-1"
+              role="list"
+              aria-label="Lista de pilotos asignados a esta nave"
             >
               <div
                 v-for="pilot in modalStarship.pilots"
                 :key="pilot.id"
+                role="listitem"
                 class="flex items-center justify-between gap-2 hover:bg-gray-700/20 hover:rounded-4xl rounded-lg px-4 py-2"
+                tabindex="0"
               >
                 <div class="flex items-center gap-2">
                   <img
                     :src="pilot.image_url"
-                    alt="Imagen del piloto"
                     class="w-12 h-12 rounded-full border border-yellow-500 object-cover"
                   />
                   <span class="text-md text-white">{{ pilot.name }}</span>
                 </div>
                 <button
-                  aria-label="Borrar piloto"
+                  :aria-label="`Botón para eliminar al piloto ${pilot.name}`"
                   class="text-white hover:scale-120 hover:bg-red-600 p-3 rounded-lg transition"
                   @click="deletePilot(modalStarship.id, pilot.id)"
                 >
-                  <i class="fas fa-trash" />
+                  <i class="fas fa-trash" aria-hidden="true" />
                 </button>
               </div>
             </div>
+
             <!-- Botón cerrar -->
             <div class="mt-2">
               <button
                 class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                aria-label="Cerrar ventana modal"
                 @click="closeModal"
               >
                 Cerrar
@@ -418,8 +453,12 @@
 
 <script setup>
 // Importamos SweetAlert2 para los cuadros de diálogo personalizados y una versión custom (swalDark)
+import { onMounted, ref, nextTick, watch } from 'vue'
 import { swalDark } from "#imports";
 import Swal from "sweetalert2";
+
+
+const modalRef = ref(null)
 
 // Accedemos a las variables públicas de entorno
 const config = useRuntimeConfig();
@@ -453,13 +492,32 @@ const scrollPorPantallaPequena = computed(() => {
   return window.innerWidth < 768; // true si es móvil
 });
 
-// CREO QUE SE PUEDE QUITARRRRR
-// onMounted(() => {
-//   window.addEventListener("resize", () => {
-//     scrollModalActivo.value;
-//     scrollPorPantallaPequena.value;
-//   });
-// });
+
+const handleKeyDown = (event) => {
+  if (event.key === 'Escape' && showModal.value) {
+    closeModal()
+  }
+}
+
+useHead({
+  htmlAttrs: {
+    lang: "es",
+  },
+});
+
+watch(showModal, (isOpen) => {
+  if (isOpen) {
+    document.addEventListener('keydown', handleKeyDown)
+
+    // Esperamos a que la DOM se actualice (modal renderizada)
+    nextTick(() => {
+      modalRef.value?.focus()
+    })
+  } else {
+    document.removeEventListener('keydown', handleKeyDown)
+  }
+})
+
 
 // Carga inicial de naves desde la API protegida con token
 const loadStarships = async () => {
@@ -781,7 +839,6 @@ const actualizarSugerencias = () => {
     mostrarSugerencias.value = true;
   }
 };
-
 
 const seleccionarSugerencia = (item) => {
   busqueda.value = item;

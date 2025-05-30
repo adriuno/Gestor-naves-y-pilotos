@@ -1,37 +1,55 @@
 <!-- eslint-disable vue/no-multiple-template-root -->
 <template>
   <!-- Fondo negro fijo detrás de la animación -->
-  <div class="fixed inset-0 bg-black z-0"/>
+  <div class="fixed inset-0 bg-black z-0" />
 
   <Transition :name="sinTransicion ? undefined : 'login-slide'" appear>
     <!-- Contenedor principal a pantalla completa con fondo oscuro -->
-    <div
+    <main
+      id="login-main"
       class="min-h-screen flex items-center justify-center bg-black px-8 z-1 relative"
     >
       <!-- Tarjeta del formulario con fondo más claro y sombra -->
-      <div class="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-lg">
+      <div
+        class="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-lg"
+        aria-label="Formulario de inicio de sesión"
+      >
         <!-- Título del formulario con fuente personalizada -->
-        <h2 class="text-3xl text-center text-yellow-500 mb-8 custom-starwars">
-          Login
-        </h2>
+        <h1
+          class="text-3xl text-center text-yellow-500 mb-8 custom-starwars"
+          tabindex="0"
+        >
+          iniciar sesion
+        </h1>
 
         <!-- Formulario manejado por Nuxt UI con @submit="handleSubmit" -->
-        <UForm :state="form" class="space-y-6" @submit="handleSubmit">
+        <UForm
+          :state="form"
+          class="space-y-6"
+          role="form"
+          @submit="handleSubmit"
+        >
           <!-- Campo de Email -->
           <UFormField name="email">
             <template #label>
-              <label class="text-white">Email</label>
+              <span class="text-gray-300 font-semibold">Email</span>
             </template>
 
             <UInput
+              id="email"
               v-model="form.email"
               class="w-full"
               icon="i-lucide-mail"
               type="email"
               placeholder="Email"
-              :ui="{ base: 'bg-gray-800 text-yellow-500' }"
+              :ui="{ base: 'bg-gray-800 text-yellow-500 opacity-90' }"
+              aria-label="Campo para insertar el correo electrónico"
             />
-            <p v-if="errors.email" class="text-red-500 text-xs mt-1 italic">
+            <p
+              v-if="errors.email"
+              class="text-red-500 text-sm mt-1 italic"
+              role="alert"
+            >
               {{ errors.email[0] }}
             </p>
           </UFormField>
@@ -40,17 +58,23 @@
           <div class="space-y-2">
             <UFormField name="password" class="text-yellow-500">
               <template #label>
-                <label class="text-white">Contraseña</label>
+                <span class="text-gray-300 font-semibold">Contraseña</span>
               </template>
 
               <!-- Input de contraseña con botón de mostrar/ocultar -->
               <UInput
+                id="password"
                 v-model="form.password"
                 placeholder="Contraseña"
                 icon="i-lucide-text"
                 :type="show ? 'text' : 'password'"
-                :ui="{ base: 'bg-gray-800 text-yellow-00', trailing: 'pe-1' }"
+                :ui="{
+                  base: 'bg-gray-800 text-yellow-500 opacity-90',
+                  trailing: 'pe-1',
+                }"
                 class="w-full"
+                aria-describedby="passwordHelp"
+                aria-label="Campo para introducir la contraseña"
               >
                 <!-- Botón de mostrar/ocultar contraseña -->
                 <template #trailing>
@@ -58,31 +82,38 @@
                     variant="link"
                     size="sm"
                     :icon="show ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                    :aria-label="show ? 'Ocultar password' : 'Mostrar password'"
-                    :aria-pressed="show"
-                    aria-controls="password"
+                    :aria-label="
+                      show ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                    "
+                    :title="show ? 'Ocultar contraseña' : 'Mostrar contraseña'"
                     @click="show = !show"
                   />
                 </template>
               </UInput>
+
               <p
                 v-if="errors.password"
-                class="text-red-500 text-xs mt-1 italic"
+                class="text-red-500 text-sm mt-1 italic"
+                role="alert"
               >
                 {{ errors.password[0] }}
               </p>
+
               <!-- Mensaje de error (email o contraseña incorrecta, o demasiados intentos) -->
               <div
                 v-if="errorGlobal"
-                class="text-red-500 text-xs mb-2 mt-2 text-center italic"
+                class="text-red-500 text-sm mb-2 mt-2 text-center italic"
+                role="alert"
               >
                 {{ errorGlobal }}
               </div>
 
+              <!-- Enlace para recuperación -->
               <div class="text-center mt-2 mb-8">
                 <nuxt-link
                   to="/forgot-password"
                   class="text-sm text-white text-center underline"
+                  aria-label="Enlace para Recuperar contraseña"
                 >
                   He olvidado mi contraseña
                 </nuxt-link>
@@ -97,14 +128,17 @@
             size="xl"
             class="text-black font-bold rounded-4xl"
             block
+            aria-label="Botón para iniciar sesión con los datos introducidos"
           >
             Iniciar sesión
           </UButton>
+
           <!-- Login con Google -->
           <div class="text-center">
             <UButton
               color="white"
               class="block w-full text-white py-2.5 font-semibold bg-red-600 rounded-4xl hover:bg-red-700 transition"
+              aria-label="Botón para iniciar sesión a través de una cuenta de Google"
               @click="loginWithGoogle"
             >
               <i class="fa-brands fa-google mr-3 text-xl" />
@@ -113,34 +147,42 @@
           </div>
 
           <!-- Enlace a registro para nuevos usuarios -->
-          <div class="text-center text-white mt-14">
-            <p class="custom-starwars mb-5">¿Aun no tienes cuenta?</p>
+          <div class="text-center text-white mt-14" role="contentinfo">
+            <p class="custom-starwars mb-5" tabindex="0">
+              ¿Aún no tienes cuenta?
+            </p>
             <nuxt-link
               to="registro"
-              class="block w-full text-center rounded-4xl bg-blue-500 p-2 text-white hover:bg-blue-600 transition"
+              class="block w-full text-center rounded-4xl font-semibold bg-blue-600 p-2 text-white hover:bg-blue-700 transition"
+              aria-label="Botón para acceder al formulario de registro de una nueva cuenta"
             >
               Registro
             </nuxt-link>
           </div>
         </UForm>
       </div>
-    </div>
+    </main>
   </Transition>
 </template>
 
 <script setup>
+useHead({
+  title: "Gestor | Iniciar sesión",
+  htmlAttrs: {
+    lang: "es",
+  },
+});
 
 // Esto para quitar la transición DE registro A login!!
-const sinTransicion = ref(false)
+const sinTransicion = ref(false);
 
 // eslint-disable-next-line nuxt/prefer-import-meta
-if (process.client && sessionStorage.getItem('fromRegister') === 'true') {
-  sinTransicion.value = true
-  sessionStorage.removeItem('fromRegister')
+if (process.client && sessionStorage.getItem("fromRegister") === "true") {
+  sinTransicion.value = true;
+  sessionStorage.removeItem("fromRegister");
 }
 
 // ESTADOS Y REFERENCIAS
-
 
 // Objeto reactivo con los datos del formulario (email y contraseña)
 const form = ref({ email: "", password: "" });
@@ -159,7 +201,6 @@ const isSubmitting = ref(false);
 
 // Obtenemos el router de Nuxt para hacer redirecciones
 const router = useRouter();
-
 
 // FUNCIÓN DE ENVÍO DEL FORMULARIO
 // ==============================

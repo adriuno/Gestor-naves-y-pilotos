@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/html-self-closing -->
 <template>
-  <div :aria-hidden="modalPiloto ? 'true' : 'false'">
+  <main :aria-hidden="modalPiloto ? 'true' : 'false'">
     <!-- Buscador -->
     <div class="flex justify-center mt-3">
       <div class="relative w-full max-w-md">
@@ -9,9 +9,11 @@
           type="text"
           placeholder="Buscar piloto..."
           class="w-full pl-10 p-2 border border-yellow-500 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring focus:drop-shadow-[0_0_8px_#38bdf8]"
+          aria-label="Buscar piloto"
         />
         <div
           class="absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-400"
+          aria-hidden="true"
         >
           <i class="fas fa-search" />
         </div>
@@ -62,7 +64,7 @@
           <div class="relative pilot-card cursor-pointer group">
             <img
               :src="pilot.image_url"
-              :alt="pilot.name"
+              :alt="`Retrato de ${pilot.name}`"
               class="w-full object-cover rounded-xl"
             />
             <div
@@ -89,11 +91,11 @@
       <div
         v-if="modalPiloto"
         class="fixed inset-0 bg-opacity-70 backdrop-blur-sm z-30 flex justify-center sm:items-center items-start overflow-y-auto py-6 px-2"
-        @click.self="cerrarModal"
-        role="dialog"
-        aria-modal="true"
         :aria-labelledby="'modal-titulo'"
         :aria-describedby="'modal-contenido'"
+        role="dialog"
+        aria-modal="true"
+        @click.self="cerrarModal"
       >
         <div
           class="relative rounded-xl text-white w-full max-w-4xl shadow-xl overflow-hidden"
@@ -111,36 +113,34 @@
 
           <!-- Contenido principal -->
           <div
-            class="relative z-10 p-4 sm:p-6 flex flex-col md:flex-row gap-4 sm:gap-6"
             id="modal-contenido"
             ref="modalContainer"
-            tabindex="0"
+            class="relative z-10 p-4 sm:p-6 flex flex-col md:flex-row gap-4 sm:gap-6"
+            tabindex="-1"
           >
             <!-- COLUMNA DE LA IZQUIERDA -->
             <!-- Imagen -->
             <div class="flex flex-col items-center ml-4">
               <img
                 :src="modalPiloto.image_url"
-                :alt="`Imagen de ${modalPiloto.name}`"
-                tabindex="0"
+                :alt="`Retrato de ${modalPiloto.name}`"
                 class="w-22 h-22 sm:w-27 sm:h-27 object-cover rounded-full border-4 border-yellow-500"
               />
               <h2
                 id="modal-titulo"
-                tabindex="0"
                 class="text-sm sm:text-lg text-yellow-400 font-bold mb-2"
               >
                 {{ modalPiloto.name }}
               </h2>
-              <p tabindex="0" class="text-xs">
+              <p class="text-xs">
                 <strong
-                  class="bg-yellow-500 text-black px-3 py-1 rounded-full shadow text-sm  font-semibold"
+                  class="bg-yellow-500 text-black px-3 py-1 rounded-full shadow text-sm font-semibold"
                   >Género:</strong
                 >
                 {{ genderTraduction(modalPiloto.gender) }}
               </p>
 
-              <p tabindex="0" class="mt-25 mb-4">
+              <p class="mt-25 mb-4">
                 <strong
                   class="bg-yellow-500 text-black px-3 py-1 rounded-full shadow text-lg font-semibold"
                 >
@@ -158,7 +158,7 @@
                     {{ ship.name }}
                   </span>
                 </template>
-                <p v-else class="italic text-gray-600 mb-6" tabindex="0">
+                <p v-else class="italic text-gray-600 mb-6">
                   No asignado a ninguna nave
                 </p>
               </div>
@@ -173,21 +173,21 @@
             <!-- Info del piloto -->
             <div class="flex-1 flex flex-col justify-between min-h-[400px]">
               <div class="space-y-2 text-xs mt-2 text-gray-300">
-                <p tabindex="0">
+                <h3>
                   <strong
                     class="bg-yellow-500 text-black px-3 py-1 rounded-full shadow text-lg font-semibold"
                     >Películas:</strong
                   >
-                </p>
-                <div   
+                </h3>
+                <div
                   :class="[
-                      'grid mt-6 gap-6',
-                      modalPiloto.films?.length === 1
-                        ? 'grid-cols-1 justify-items-center'
-                        : modalPiloto.films?.length === 2
-                        ? 'grid-cols-2 justify-items-center'
-                        : 'grid-cols-2 sm:grid-cols-3'
-                    ]"
+                    'grid mt-6 gap-6',
+                    modalPiloto.films?.length === 1
+                      ? 'grid-cols-1 justify-items-center'
+                      : modalPiloto.films?.length === 2
+                      ? 'grid-cols-2 justify-items-center'
+                      : 'grid-cols-2 sm:grid-cols-3',
+                  ]"
                 >
                   <template v-if="modalPiloto.films?.length">
                     <div
@@ -200,8 +200,8 @@
                       <img
                         :src="filmMap[film]"
                         :title="filmTitles[film]"
-                        :alt="`Cartel de ${filmTitles[film]}`"
                         :aria-label="`Imagen cartel de la película ${filmTitles[film]}`"
+                        :alt="`Cartel de ${filmTitles[film]}`"
                         tabindex="0"
                         class="w-24 sm:w-28 h-auto rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
                       />
@@ -217,9 +217,8 @@
               <div class="text-center mt-4">
                 <button
                   class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                  @click="cerrarModal"
                   aria-label="Cerrar modal"
-                  tabindex="0"
+                  @click="cerrarModal"
                 >
                   Cerrar
                 </button>
@@ -231,7 +230,7 @@
         </div>
       </div>
     </transition>
-  </div>
+  </main>
 
   <!--    Usa alt="..." si es un texto fijo.
           y   :alt="..." si el texto viene con una variable. -->
@@ -269,6 +268,12 @@ const filmTitles = {
   "https://swapi.dev/api/films/5/": "El ataque de los clones",
   "https://swapi.dev/api/films/6/": "La venganza de los Sith",
 };
+
+useHead({
+  htmlAttrs: {
+    lang: "es",
+  },
+});
 
 const fetchPilotsFromStarships = async () => {
   cargandoPilotos.value = true;
@@ -325,20 +330,68 @@ watch(busqueda, () => {
   fetchPilotsFromStarships();
 });
 
+
+
+// Esta función impide que el foco salga del modal cuando se usa Tab o Shift+Tab
+const trapFocus = (e) => {
+  // Solo actuamos si se está presionando la tecla Tab
+  if (e.key !== "Tab") return;
+
+  // Obtenemos el contenedor del modal
+  const modal = document.getElementById("modal-contenido");
+  if (!modal) return;
+
+  // Seleccionamos todos los elementos focusables dentro del modal
+  const focusables = modal.querySelectorAll(
+    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+  );
+
+  // Convertimos el NodeList a un array para poder trabajar cómodamente
+  const focusablesArray = Array.from(focusables);
+
+  // Obtenemos el primer y el último elemento con foco
+  const first = focusablesArray[0];
+  const last = focusablesArray[focusablesArray.length - 1];
+
+  // Comprobamos si se está presionando Shift (para navegación inversa)
+  const isShift = e.shiftKey;
+
+  // Si estamos en el primer elemento y el usuario pulsa Shift+Tab,
+  // prevenimos el comportamiento por defecto y llevamos el foco al último
+  if (isShift && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  }
+
+  // Si estamos en el último y el usuario pulsa Tab,
+  // prevenimos el comportamiento y llevamos el foco al primero
+  else if (!isShift && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+
+  // De esta forma el foco queda encerrado dentro del modal, sin poder salirse al tabular
+};
+
+
+
 // para impedir scroll al abrir una modal!!
 watch(modalPiloto, (nuevoValor) => {
-  ref.modalContainer?.focus();
   if (nuevoValor) {
     nextTick(() => {
-      const closeBtn = document.querySelector('[aria-label="Cerrar modal"]');
-      if (closeBtn) closeBtn.focus();
+      const modal = document.getElementById("modal-contenido");
+      if (modal) modal.focus(); // enfoca el modal
     });
 
     document.body.classList.add("overflow-hidden");
+    document.addEventListener("keydown", trapFocus);
   } else {
     document.body.classList.remove("overflow-hidden");
+    document.removeEventListener("keydown", trapFocus);
   }
 });
+
+
 
 const abrirModal = (pilot) => {
   if (typeof pilot.films === "string") {

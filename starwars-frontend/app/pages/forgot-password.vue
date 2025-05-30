@@ -1,101 +1,129 @@
 <!-- eslint-disable vue/html-self-closing -->
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-black text-white px-4">
-    <div class="bg-gray-800 p-8 rounded-xl shadow-xl max-w-md w-full">
-      <h1 class="text-xl text-center mb-6 text-yellow-400 custom-starwars">recuperar clave</h1>
+  <main
+    id="recovery-main"
+    role="main"
+    class="min-h-screen flex items-center justify-center bg-black text-white px-4"
+  >
+    <div
+      class="bg-gray-800 p-8 rounded-xl shadow-xl max-w-md w-full"
+      role="region"
+      aria-label="Formulario de recuperación de contraseña"
+    >
+      <h1
+        class="text-2xl text-center mb-10 text-yellow-400 custom-starwars"
+        tabindex="0"
+      >
+        Recuperar clave
+      </h1>
 
       <!-- FORMULARIO con validación de HTML5.. gracias al required -->
-      <form @submit.prevent="handleSubmit">
+      <form
+        role="form"
+        aria-label="Formulario para recuperar contraseña"
+        @submit.prevent="handleSubmit"
+      >
+        <label for="email" class="block text-md font-semibold text-white mb-2">
+          Introduce tu email
+        </label>
         <input
+          id="email"
           v-model="email"
           type="email"
           required
-          class="w-full p-2 rounded bg-gray-700 text-yellow-500 mb-6"
-          placeholder="Introduce tu email"
+          class="w-full p-1 rounded text-md bg-gray-700 text-yellow-500 mb-6 border border-white focus:border-yellow-500 focus:outline-none placeholder-yellow-500 placeholder-opacity-60"
+          placeholder=" usuario@ejemplo.com"
+          aria-label="Campo para poner el correo electrónico del cual se quiere recuperar contraseña"
         />
 
         <button
           type="submit"
           class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 rounded-4xl w-full text-lg"
+          aria-label="Enviar enlace de recuperación"
         >
           Enviar enlace
         </button>
       </form>
 
-      <div class="text-center text-white mt-6">
+      <div class="text-center text-white mt-6" role="contentinfo">
         <nuxt-link
           to="login"
           class="block w-full btn rounded-4xl bg-gray-500 p-2 hover:bg-gray-600 text-lg"
+          aria-label="Volver a la página de inicio de sesión"
         >
           Volver
         </nuxt-link>
       </div>
+
       <!-- <p v-if="message" class="text-green-400 mt-4">{{ message }}</p> -->
     </div>
-  </div>
+  </main>
 </template>
 
-
 <script setup>
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 
-const email = ref('')
-const message = ref('')
-const error = ref('')
+const email = ref("");
+const message = ref("");
+const error = ref("");
+
+useHead({
+  title: "Gestor | Recuperar contraseña",
+  htmlAttrs: {
+    lang: "es",
+  },
+});
 
 const handleSubmit = async () => {
-  error.value = ''
-  message.value = ''
+  error.value = "";
+  message.value = "";
 
   try {
     Swal.fire({
-      icon: 'info',
-      title: 'Enviando...',
-      text: 'Procesando solicitud...',
+      icon: "info",
+      title: "Enviando...",
+      text: "Procesando solicitud...",
       showConfirmButton: false,
       allowOutsideClick: false,
       didOpen: () => {
-        Swal.showLoading()
-      }
-    })
+        Swal.showLoading();
+      },
+    });
 
-    await $fetch('http://localhost:8000/api/forgot-password', {
-      method: 'POST',
+    await $fetch("http://localhost:8000/api/forgot-password", {
+      method: "POST",
       body: { email: email.value },
-    })
+    });
 
-    Swal.close()
+    Swal.close();
 
     await Swal.fire({
-      icon: 'success',
-      title: '¡Correo enviado!',
-      text: 'Revisa tu bandeja de entrada para el enlace de recuperación.',
-      confirmButtonText: 'Aceptar',
-    })
+      icon: "success",
+      title: "¡Correo enviado!",
+      text: "Revisa tu bandeja de entrada para el enlace de recuperación.",
+      confirmButtonText: "Aceptar",
+    });
 
-    message.value = 'Correo enviado correctamente.'
-
+    message.value = "Correo enviado correctamente.";
   } catch (err) {
-    Swal.close()
+    Swal.close();
 
-    const msg = err?.data?.error || 'Error al enviar el correo.'
+    const msg = err?.data?.error || "Error al enviar el correo.";
 
     await Swal.fire({
-      icon: 'error',
-      title: 'Error',
+      icon: "error",
+      title: "Error",
       text: msg,
-      confirmButtonText: 'Aceptar'
-    })
+      confirmButtonText: "Aceptar",
+    });
 
-    error.value = msg
+    error.value = msg;
   }
-}
-
+};
 </script>
-
 
 <style>
 .custom-starwars {
-  font-family: 'Starjedi', sans-serif;
+  font-family: "Starjedi", sans-serif;
 }
 </style>

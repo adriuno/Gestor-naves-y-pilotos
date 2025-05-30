@@ -1,14 +1,16 @@
 <template>
   <!-- Solo se muestra el contenido si ya se ha autenticado -->
-  <div v-if="!autenticando"
+  <div
+    v-if="!autenticando"
+    role="main"
     class="relative min-h-screen bg-black bg-cover bg-center bg-no-repeat text-white px-6 py-4 flex flex-col justify-between"
     style="background-image: url('/images/sw3.jpg')"
   >
     <!-- Botón de logout, arriba a la derecha -->
     <UButton
-      class="absolute py-2 sm:py-3 sm:px-3 sm:text-2xl top-4 sm:top-5 right-2 sm:right-15 bg-red-600 rounded-3xl
-              hover:bg-red-700 hover:scale-115 transition-transform z-10
-              hover:drop-shadow-[0_0_8px_#38bdf8] transition duration-200"
+      aria-label="Cerrar sesión"
+      title="Cerrar sesión"
+      class="absolute py-2 sm:py-3 sm:px-3 sm:text-2xl top-4 sm:top-5 right-2 sm:right-15 bg-red-600 rounded-3xl hover:bg-red-700 hover:scale-115 transition-transform z-10 hover:drop-shadow-[0_0_8px_#38bdf8] transition duration-200"
       @click="cerrarSesion"
     >
       <!-- Icono de apagado -->
@@ -17,7 +19,11 @@
 
     <!-- Título principal de la pantalla -->
     <div class="flex justify-center">
-      <h1 class="inline-block text-3xl sm:text-4xl text-black bg-yellow-400 mt-9 sm:mt-4 custom-starwars rounded-4xl sm:px-5 py-4 text-center">
+      <h1
+        tabindex="0"
+        aria-label="En esta pantalla puedes elegir entre acceder a la sección de naves o a la de pilotos"
+        class="inline-block text-3xl sm:text-4xl text-black bg-yellow-400 mt-9 sm:mt-4 custom-starwars rounded-4xl sm:px-5 py-4 text-center"
+      >
         selecciona una opcion
       </h1>
     </div>
@@ -30,10 +36,10 @@
         <canvas ref="naveCanvas" class="h-32 w-full" />
         <!-- Botón para ir a la página de naves -->
         <button
-          class="inline-block text-2xl text-black bg-yellow-400 bg-gray-500 mt-1 mb-8 custom-starwars rounded-4xl px-6 py-3 
-                 hover:scale-155 transition-transform 
-                 hover:text-yellow-500 hover:bg-violet-600 transition-colors duration-300"
-          @click="goTo('home')"
+          class="inline-block text-2xl text-black bg-yellow-400 bg-gray-500 mt-1 mb-8 custom-starwars rounded-4xl px-6 py-3 hover:scale-155 transition-transform hover:text-yellow-500 hover:bg-violet-600 transition-colors duration-300"
+          aria-label="Ir a la sección de naves"
+          tabindex="0"
+          @click="goTo('starships')"
         >
           Ver Naves
         </button>
@@ -45,9 +51,9 @@
         <canvas ref="pilotoCanvas" class="h-32 w-full" />
         <!-- Botón para ir a la página de pilotos -->
         <button
-          class="inline-block text-2xl text-black bg-yellow-400 bg-gray-500 mt-2 mb-9 custom-starwars rounded-4xl px-6 py-3 
-                 hover:scale-155 transition-transform 
-                 hover:text-yellow-500 hover:bg-violet-600 transition-colors duration-300"
+          class="inline-block text-2xl text-black bg-yellow-400 bg-gray-500 mt-2 mb-9 custom-starwars rounded-4xl px-6 py-3 hover:scale-155 transition-transform hover:text-yellow-500 hover:bg-violet-600 transition-colors duration-300"
+          aria-label="Ir a la sección de pilotos"
+          tabindex="0"
           @click="goTo('pilots')"
         >
           Ver Pilotos
@@ -57,212 +63,217 @@
   </div>
 </template>
 
-
 <script setup>
 // SweetAlert2 para confirmar cierre de sesión
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 
 // Librería Three.js para mostrar modelos 3D
-import * as THREE from 'three'
+import * as THREE from "three";
 // Cargador de modelos GLTF
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 // Utilidades de Vue
-import { onMounted, nextTick, watch, ref } from 'vue'
+import { onMounted, nextTick, watch, ref } from "vue";
 // Router de Vue para redirecciones
-import { useRouter } from 'vue-router'
+import { useRouter } from "vue-router";
+
+useHead({
+  title: "Gestor | Opciones",
+  htmlAttrs: {
+    lang: "es",
+  },
+});
 
 // Instancia del router
-const router = useRouter()
+const router = useRouter();
 
 // Refs a los canvas para los modelos
-const naveCanvas = ref()
-const pilotoCanvas = ref()
+const naveCanvas = ref();
+const pilotoCanvas = ref();
 
 // Caché de modelos 3D para no recargarlos cada vez
-const modelCache = {}
+const modelCache = {};
 
 // Redirección según la opción seleccionada
 const goTo = (section) => {
-  router.push(`/${section}`)
-}
+  router.push(`/${section}`);
+};
 
 // Carga un modelo 3D en un canvas usando Three.js
 const loadModel = async (canvasRef, modelUrl, options = {}) => {
-  const scene = new THREE.Scene()
+  const scene = new THREE.Scene();
 
   // Cámara con perspectiva
-  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
-  camera.position.z = options.cameraZ || 6
+  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+  camera.position.z = options.cameraZ || 6;
 
   // Renderer de WebGL
   const renderer = new THREE.WebGLRenderer({
     canvas: canvasRef.value,
-    alpha: true,     // Fondo transparente
-    antialias: false // Mejor rendimiento
-  })
-  renderer.setSize(canvasRef.value.clientWidth, canvasRef.value.clientHeight)
-  renderer.setPixelRatio(window.devicePixelRatio)
+    alpha: true, // Fondo transparente
+    antialias: false, // Mejor rendimiento
+  });
+  renderer.setSize(canvasRef.value.clientWidth, canvasRef.value.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
 
   // Iluminación ambiental
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1.5)
-  scene.add(ambientLight)
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+  scene.add(ambientLight);
 
   // Luz direccional como si fuera el sol
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5)
-  directionalLight.position.set(3, 5, 2)
-  scene.add(directionalLight)
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  directionalLight.position.set(3, 5, 2);
+  scene.add(directionalLight);
 
   // Cargar o usar modelo desde caché
-  let model
+  let model;
   if (modelCache[modelUrl]) {
-    model = modelCache[modelUrl].clone()
+    model = modelCache[modelUrl].clone();
   } else {
     const gltf = await new Promise((resolve, reject) => {
-      new GLTFLoader().load(modelUrl, resolve, undefined, reject)
-    })
-    model = gltf.scene
-    modelCache[modelUrl] = model.clone()
+      new GLTFLoader().load(modelUrl, resolve, undefined, reject);
+    });
+    model = gltf.scene;
+    modelCache[modelUrl] = model.clone();
   }
 
   // Escala y posición del modelo
-  const scale = options.scale || 1.5
-  model.scale.set(scale, scale, scale)
-  model.position.set(0, -0.5, 0)
-  scene.add(model)
+  const scale = options.scale || 1.5;
+  model.scale.set(scale, scale, scale);
+  model.position.set(0, -0.5, 0);
+  scene.add(model);
 
   // Variables para el movimiento con el ratón
-  let mouseX = 0
-  let mouseY = 0
+  let mouseX = 0;
+  let mouseY = 0;
 
   // Renderiza la escena con rotación del modelo
   const renderScene = () => {
-    model.rotation.y = mouseX * 1.5
-    model.rotation.x = mouseY * 1.0
-    renderer.render(scene, camera)
-  }
+    model.rotation.y = mouseX * 1.5;
+    model.rotation.x = mouseY * 1.0;
+    renderer.render(scene, camera);
+  };
 
-  renderScene() // Render inicial
+  renderScene(); // Render inicial
 
   // Detectar movimiento del ratón para girar el modelo
-  canvasRef.value.addEventListener('mousemove', (event) => {
-    const rect = canvasRef.value.getBoundingClientRect()
-    const x = (event.clientX - rect.left) / rect.width
-    const y = (event.clientY - rect.top) / rect.height
-    mouseX = (x - 0.5) * 6
-    mouseY = (y - 0.5) * 2
-    renderScene()
-  })
-}
+  canvasRef.value.addEventListener("mousemove", (event) => {
+    const rect = canvasRef.value.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+    mouseX = (x - 0.5) * 6;
+    mouseY = (y - 0.5) * 2;
+    renderScene();
+  });
+};
 
 // Variable para saber si estamos esperando autenticación
-const autenticando = ref(true)
+const autenticando = ref(true);
 
 // Al montar el componente: comprobamos si hay token
 onMounted(() => {
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token");
   if (!token) {
-    return navigateTo("/login?unauthorized=true")
+    return navigateTo("/login?unauthorized=true");
   }
 
-  autenticando.value = false // Ahora sí mostramos la vista
-})
+  autenticando.value = false; // Ahora sí mostramos la vista
+});
 
 // Cuando autenticando cambia, cargamos los modelos
 watch(autenticando, (valor) => {
   if (!valor) {
     nextTick(() => {
       if (naveCanvas.value && pilotoCanvas.value) {
-        loadModel(naveCanvas, '/models/awing.glb', {
+        loadModel(naveCanvas, "/models/awing.glb", {
           scale: 2,
           cameraZ: 30,
-        })
-        loadModel(pilotoCanvas, '/models/pilot1.glb', {
+        });
+        loadModel(pilotoCanvas, "/models/pilot1.glb", {
           scale: 2,
           cameraZ: 6,
-        })
+        });
       } else {
-        console.warn('Canvas no disponibles tras mostrar vista.')
+        console.warn("Canvas no disponibles tras mostrar vista.");
       }
-    })
+    });
   }
-})
+});
 
 // Cierre de sesión con confirmación
 const cerrarSesion = async () => {
   const confirm = await Swal.fire({
-    title: '¿Cerrar sesión?',
-    text: 'Vas a salir de la aplicación',
-    icon: 'warning',
+    title: "¿Cerrar sesión?",
+    text: "Vas a salir de la aplicación",
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonText: 'Sí, cerrar',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-  })
+    confirmButtonText: "Sí, cerrar",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+  });
 
-  if (!confirm.isConfirmed) return
+  if (!confirm.isConfirmed) return;
 
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem("token");
 
   try {
-    await $fetch('http://localhost:8000/api/logout', {
-      method: 'POST',
+    await $fetch("http://localhost:8000/api/logout", {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    })
+    });
 
-    localStorage.removeItem('token')
-    router.push('/login')
+    localStorage.removeItem("token");
+    router.push("/login");
   } catch (error) {
-    console.error('Error al cerrar sesión:', error)
+    console.error("Error al cerrar sesión:", error);
     Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'No se pudo cerrar la sesión. Inténtalo de nuevo.',
-    })
+      icon: "error",
+      title: "Error",
+      text: "No se pudo cerrar la sesión. Inténtalo de nuevo.",
+    });
   }
-}
+};
 
 // Middleware para proteger esta ruta (solo accesible si estás logueado)
 definePageMeta({
-  middleware: 'auth',
-})
+  middleware: "auth",
+});
 
 // Precarga de vistas y datos para mejorar experiencia del usuario
 onMounted(() => {
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token");
   if (!token) {
-    return navigateTo("/login?unauthorized=true")
+    return navigateTo("/login?unauthorized=true");
   }
 
-  autenticando.value = false
+  autenticando.value = false;
 
   // Precarga de componentes
-  router.resolve('/pilots').matched.forEach((record) => {
-    if (record.components && typeof record.components.default === 'function') {
-      record.components.default()
+  router.resolve("/pilots").matched.forEach((record) => {
+    if (record.components && typeof record.components.default === "function") {
+      record.components.default();
     }
-  })
+  });
 
-  router.resolve('/home').matched.forEach((record) => {
-    if (record.components && typeof record.components.default === 'function') {
-      record.components.default()
+  router.resolve("/starships").matched.forEach((record) => {
+    if (record.components && typeof record.components.default === "function") {
+      record.components.default();
     }
-  })
+  });
 
   // Precarga de datos desde API para hacer que se muestren algo más rapido!!
-  fetch('http://localhost:8000/api/pilots')
-    .then(() => console.log('[Precarga] Pilotos precargados'))
-    .catch(() => console.warn('[Precarga] Error al precargar pilotos'))
+  fetch("http://localhost:8000/api/pilots")
+    .then(() => console.log("[Precarga] Pilotos precargados"))
+    .catch(() => console.warn("[Precarga] Error al precargar pilotos"));
 
-  fetch('http://localhost:8000/api/starships')
-    .then(() => console.log('[Precarga] Naves precargadas'))
-    .catch(() => console.warn('[Precarga] Error al precargar naves'))
-})
+  fetch("http://localhost:8000/api/starships")
+    .then(() => console.log("[Precarga] Naves precargadas"))
+    .catch(() => console.warn("[Precarga] Error al precargar naves"));
+});
 </script>
-
 
 <style scoped>
 canvas {
@@ -275,6 +286,6 @@ canvas {
 }
 
 .custom-starwars {
-  font-family: 'Starjedi', sans-serif;
+  font-family: "Starjedi", sans-serif;
 }
 </style>
