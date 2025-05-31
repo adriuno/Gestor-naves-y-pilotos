@@ -9,7 +9,6 @@
       class="bg-gray-800 p-8 rounded-xl shadow-xl max-w-md w-full"
       role="form"
     >
-      <!-- Título -->
       <h1
         class="text-2xl font-bold mb-6 text-yellow-400 text-center"
         tabindex="0"
@@ -17,89 +16,101 @@
         Nueva contraseña
       </h1>
 
-      <!-- Campo de email oculto -->
-      <input
-        v-model="email"
-        type="hidden"
-        name="email"
-      />
+      <form @submit.prevent="handleSubmit" aria-describedby="formDescription">
+        <fieldset class="border-0 p-0 m-0">
+          <legend class="sr-only">Formulario para cambiar contraseña</legend>
 
-      <!-- Nueva contraseña -->
-      <div class="relative mb-4">
-        <label for="password" class="sr-only">Nueva contraseña</label>
-        <input
-          id="password"
-          v-model="password"
-          :type="showPassword ? 'text' : 'password'"
-          autocomplete="new-password"
-          aria-label="Escribe tu nueva contraseña"
-          class="w-full p-2 pr-10 rounded bg-gray-700 text-white"
-          placeholder="Nueva contraseña"
-          required
-          minlength="8"
-        />
-        <span class="absolute right-2 top-1.5">
-          <UButton
-            variant="link"
-            size="sm"
-            class="text-yellow-400"
-            :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-            :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
-            @click="showPassword = !showPassword"
-          />
-        </span>
-      </div>
+          <p id="formDescription" class="sr-only">
+            Introduce tu nueva contraseña y confírmala.
+          </p>
 
-      <!-- Confirmar contraseña -->
-      <div class="relative mb-4">
-        <label for="password_confirmation" class="sr-only">Confirmar contraseña</label>
-        <input
-          id="password_confirmation"
-          v-model="password_confirmation"
-          :type="showConfirm ? 'text' : 'password'"
-          autocomplete="new-password"
-          aria-label="Repite tu nueva contraseña"
-          class="w-full p-2 pr-10 rounded bg-gray-700 text-white"
-          placeholder="Repetir contraseña"
-          required
-          minlength="8"
-        />
-        <span class="absolute right-2 top-1.5">
-          <UButton
-            variant="link"
-            size="sm"
-            class="text-yellow-400"
-            :aria-label="showConfirm ? 'Ocultar confirmación' : 'Mostrar confirmación'"
-            :icon="showConfirm ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-            @click="showConfirm = !showConfirm"
-          />
-        </span>
-      </div>
+          <!-- Email oculto -->
+          <input type="hidden" :value="email" name="email" />
 
-      <!-- Botón -->
-      <button
-        class="bg-yellow-500 text-xl hover:bg-yellow-600 text-black font-semibold px-4 py-2 rounded-4xl w-full"
-        aria-label="Confirmar cambio de contraseña"
-        @click="handleSubmit"
-      >
-        Cambiar contraseña
-      </button>
+          <!-- Nueva contraseña -->
+          <div class="relative mb-4">
+            <label for="password" class="sr-only">Nueva contraseña</label>
+            <input
+              id="password"
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              autocomplete="new-password"
+              aria-label="Escribe tu nueva contraseña"
+              aria-describedby="passwordHelp"
+              class="w-full p-2 pr-10 rounded bg-gray-700 text-white"
+              placeholder="Nueva contraseña"
+              required
+              minlength="8"
+            />
+            <span class="absolute right-2 top-1.5">
+              <UButton
+                variant="link"
+                size="sm"
+                class="text-yellow-400"
+                :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                @click="showPassword = !showPassword"
+              />
+            </span>
+            <p id="passwordHelp" class="text-xs text-gray-400 mt-1">
+              Mínimo 8 caracteres.
+            </p>
+          </div>
 
-      <!-- Mensajes -->
-      <p
-        v-if="message"
-        class="text-green-400 mt-4 text-sm text-center"
-        aria-live="polite"
-      >
-        {{ message }}
-      </p>
-      <p
-        v-if="error"
-        class="text-red-400 mt-4 text-sm text-center"
-        aria-live="assertive"
-      >
-        {{ error }}
-      </p>
+          <!-- Confirmar contraseña -->
+          <div class="relative mb-4">
+            <label for="password_confirmation" class="sr-only">Confirmar contraseña</label>
+            <input
+              id="password_confirmation"
+              v-model="password_confirmation"
+              :type="showConfirm ? 'text' : 'password'"
+              autocomplete="new-password"
+              aria-label="Repite tu nueva contraseña"
+              class="w-full p-2 pr-10 rounded bg-gray-700 text-white"
+              placeholder="Repetir contraseña"
+              required
+              minlength="8"
+            />
+            <span class="absolute right-2 top-1.5">
+              <UButton
+                variant="link"
+                size="sm"
+                class="text-yellow-400"
+                :aria-label="showConfirm ? 'Ocultar confirmación' : 'Mostrar confirmación'"
+                :icon="showConfirm ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                @click="showConfirm = !showConfirm"
+              />
+            </span>
+          </div>
+
+          <!-- Botón -->
+          <button
+            type="submit"
+            class="bg-yellow-500 text-xl hover:bg-yellow-600 text-black font-semibold px-4 py-2 rounded-4xl w-full"
+            aria-label="Confirmar cambio de contraseña"
+          >
+            Cambiar contraseña
+          </button>
+
+          <!-- Mensajes -->
+          <p
+            v-if="message"
+            class="text-green-400 mt-4 text-sm text-center"
+            aria-live="polite"
+          >
+            {{ message }}
+          </p>
+          <p
+            v-if="error"
+            ref="errorRef"
+            tabindex="-1"
+            class="text-red-400 mt-4 text-sm text-center"
+            aria-live="assertive"
+          >
+            {{ error }}
+          </p>
+        </fieldset>
+      </form>
     </div>
   </div>
 </template>

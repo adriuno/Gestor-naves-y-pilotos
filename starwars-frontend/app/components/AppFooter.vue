@@ -3,6 +3,19 @@
     <div
       class="max-w-screen-xl mx-auto px-4 py-6 flex flex-col items-center text-center gap-2"
     >
+
+      <button
+        aria-label="Ir al principio de la página"
+        class="hover:scale-110 transition-transform duration-300 rounded-full"
+        @click="scrollArriba"
+      >
+        <img
+          src="/images/logo/starwars.jpg"
+          alt=""
+          class="w-30 h-21 rounded-full"
+        >
+      </button>
+
       <!-- GitHub -->
       <div class="flex items-center gap-2 text-yellow-400">
         <a
@@ -82,9 +95,10 @@
         </div>
       </div>
 
-      <!-- Créditos -->
-      <p>© 2025 Gestor de naves y pilotos.</p>
-      <p><i>Por Adrián Ginel Mañas.</i></p>
+      <!-- Final de footer -->
+      <p>© 2025 Gestor de naves y pilotos | Por Adrián Ginel Mañas</p>
+      <!-- <p><i>Por Adrián Ginel Mañas.</i></p> -->
+
     </div>
   </footer>
 </template>
@@ -95,6 +109,11 @@ import { ref, computed, nextTick } from "vue";
 const mostrarIntro = ref(false);
 const videoRef = ref(null);
 const volume = ref(0.5); // volumen por defecto
+
+const scrollArriba = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
 
 const abrirIntro = async () => {
   localStorage.removeItem("introVista"); //esto hace que se RESETEE y al entrar de nuevon en la web se pueda ver la intro como desde 0
