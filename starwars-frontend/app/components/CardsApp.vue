@@ -38,6 +38,7 @@
           <li
             v-for="(item, i) in sugerencias"
             :key="i"
+            tabindex="-1"
             class="px-4 py-2 hover:bg-yellow-400/80 hover:text-black font-semibold cursor-pointer transition text-left"
             @mousedown.prevent="seleccionarSugerencia(item)"
           >
@@ -226,7 +227,7 @@
         <!-- <div class="bg-white rounded-lg p-6 w-full max-w-3xl shadow-xl"> -->
         <div
           ref="modalRef"
-        tabindex="-1"
+          tabindex="-1"
           class="relative rounded-4xl p-6 w-full max-w-3xl shadow-xl bg-cover bg-center text-white max-h-[90vh]"
           :class="{
             'overflow-y-auto': scrollModalActivo || scrollPorPantallaPequena,
@@ -453,12 +454,11 @@
 
 <script setup>
 // Importamos SweetAlert2 para los cuadros de diálogo personalizados y una versión custom (swalDark)
-import { onMounted, ref, nextTick, watch } from 'vue'
+import { onMounted, ref, nextTick, watch } from "vue";
 import { swalDark } from "#imports";
 import Swal from "sweetalert2";
 
-
-const modalRef = ref(null)
+const modalRef = ref(null);
 
 // Accedemos a las variables públicas de entorno
 const config = useRuntimeConfig();
@@ -492,32 +492,61 @@ const scrollPorPantallaPequena = computed(() => {
   return window.innerWidth < 768; // true si es móvil
 });
 
-
-const handleKeyDown = (event) => {
-  if (event.key === 'Escape' && showModal.value) {
-    closeModal()
-  }
-}
-
 useHead({
   htmlAttrs: {
     lang: "es",
   },
 });
 
-watch(showModal, (isOpen) => {
-  if (isOpen) {
-    document.addEventListener('keydown', handleKeyDown)
+let trapHandler = null;
 
-    // Esperamos a que la DOM se actualice (modal renderizada)
-    nextTick(() => {
-      modalRef.value?.focus()
-    })
-  } else {
-    document.removeEventListener('keydown', handleKeyDown)
+watch(showModal, async (isOpen) => {
+  if (!isOpen) {
+    // Limpiamos el trap
+    if (trapHandler) {
+      document.removeEventListener("keydown", trapHandler);
+      trapHandler = null;
+    }
+    return;
   }
-})
 
+  await nextTick(); // Asegura que el DOM esté totalmente renderizado
+  const modal = modalRef.value;
+  if (!modal) return;
+
+  // Buscar elementos que se puedan enfocar
+  const focusables = getFocusableElements(modal);
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+
+  // Enfocamos el primero
+  first?.focus();
+
+  // Creamos el trap manual
+  trapHandler = (e) => {
+    if (e.key === "Tab") {
+      if (focusables.length === 0) return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    if (e.key === "Escape") {
+      closeModal();
+    }
+  };
+
+  document.addEventListener("keydown", trapHandler);
+});
 
 // Carga inicial de naves desde la API protegida con token
 const loadStarships = async () => {
@@ -850,6 +879,8 @@ const ocultarSugerenciasConRetardo = () => {
     mostrarSugerencias.value = false;
   }, 200); // Espera para permitir click
 };
+
+
 </script>
 
 <style>

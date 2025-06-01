@@ -55,8 +55,8 @@
         v-if="userName"
         class="text-white text-xs sm:text-sm bg-gray-800 bg-opacity-80 px-3 py-1 rounded-full border border-yellow-500 flex items-center"
         style="font-size: 14px"
-        aria-label="Nombre de usuario"
         tabindex="0"
+        :aria-label="`Nombre de usuario: ${userName}`"
         :title="`Usuario: ${userName}`"
       >
         <i class="fa-solid fa-user text-yellow-400 mr-2" aria-hidden="true" />

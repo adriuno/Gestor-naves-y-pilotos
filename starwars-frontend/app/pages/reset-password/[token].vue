@@ -48,7 +48,9 @@
                 size="sm"
                 class="text-yellow-400"
                 :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                :aria-label="
+                  showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                "
                 @click="showPassword = !showPassword"
               />
             </span>
@@ -59,7 +61,9 @@
 
           <!-- Confirmar contraseña -->
           <div class="relative mb-4">
-            <label for="password_confirmation" class="sr-only">Confirmar contraseña</label>
+            <label for="password_confirmation" class="sr-only"
+              >Confirmar contraseña</label
+            >
             <input
               id="password_confirmation"
               v-model="password_confirmation"
@@ -76,7 +80,9 @@
                 variant="link"
                 size="sm"
                 class="text-yellow-400"
-                :aria-label="showConfirm ? 'Ocultar confirmación' : 'Mostrar confirmación'"
+                :aria-label="
+                  showConfirm ? 'Ocultar confirmación' : 'Mostrar confirmación'
+                "
                 :icon="showConfirm ? 'i-lucide-eye-off' : 'i-lucide-eye'"
                 @click="showConfirm = !showConfirm"
               />

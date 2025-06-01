@@ -1,9 +1,8 @@
 <template>
-  <footer class="w-full mt-10 text-sm text-gray-400 relative z-0">
+  <footer class="w-full mt-10 text-sm text-gray-400 relative">
     <div
       class="max-w-screen-xl mx-auto px-4 py-6 flex flex-col items-center text-center gap-2"
     >
-
       <button
         aria-label="Ir al principio de la página"
         class="hover:scale-110 transition-transform duration-300 rounded-full"
@@ -11,7 +10,7 @@
       >
         <img
           src="/images/logo/starwars.jpg"
-          alt=""
+          alt="Volver al principio de la página"
           class="w-30 h-21 rounded-full"
         >
       </button>
@@ -98,7 +97,6 @@
       <!-- Final de footer -->
       <p>© 2025 Gestor de naves y pilotos | Por Adrián Ginel Mañas</p>
       <!-- <p><i>Por Adrián Ginel Mañas.</i></p> -->
-
     </div>
   </footer>
 </template>
@@ -111,15 +109,15 @@ const videoRef = ref(null);
 const volume = ref(0.5); // volumen por defecto
 
 const scrollArriba = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 };
-
 
 const abrirIntro = async () => {
   localStorage.removeItem("introVista"); //esto hace que se RESETEE y al entrar de nuevon en la web se pueda ver la intro como desde 0
   mostrarIntro.value = true;
   await nextTick();
   activarSonido();
+  videoRef.value?.focus(); // o enfocar botón cerrar
 };
 
 const cerrarIntro = () => {
