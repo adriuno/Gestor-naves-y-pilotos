@@ -235,6 +235,14 @@ const irAlLogin = () => {
   sessionStorage.setItem("fromRegister", "true");
   navigateTo("/login");
 };
+
+// función para llevar foco a primer campo
+onMounted(() => {
+  const usernameInput = document.querySelector(
+    'input[aria-label="Campo para el nombre de usuario"]'
+  );
+  usernameInput?.focus();
+});
 </script>
 
 <style>

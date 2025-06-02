@@ -6,21 +6,26 @@
         src="/images/sw3.jpg"
         alt="galaxy"
         class="w-full h-full object-cover brightness-75"
-      >
+      />
     </div>
 
     <div class="relative z-10">
       <AppHeader />
       <main class="p-8 mx-auto bg-black/70 rounded-xl text-center">
-        <h1 class="mt-4 text-5xl text-yellow-300 custom-starwars">
+        <h1
+          id="introTitle"
+          class="mt-4 text-5xl text-yellow-300 custom-starwars"
+        >
           En una galaxia muy, muy lejana...
         </h1>
-        <br ><br >
+        <br /><br />
         <h2 class="text-3xl text-yellow-300 custom-starwars">
           ¡Bienvenido al gestor de
         </h2>
-        <h2 class="text-3xl text-yellow-300 custom-starwars">naves y pilotos!</h2>
-        <br >
+        <h2 class="text-3xl text-yellow-300 custom-starwars">
+          naves y pilotos!
+        </h2>
+        <br />
 
         <!-- <CardsApp  />  -->
         <CardsApp />
@@ -40,6 +45,11 @@ useHead({
   htmlAttrs: {
     lang: "es",
   },
+});
+
+onMounted(() => {
+  const title = document.getElementById("introTitle");
+  title?.focus();
 });
 </script>
 
