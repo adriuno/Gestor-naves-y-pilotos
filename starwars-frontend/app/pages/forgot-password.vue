@@ -28,6 +28,7 @@
         </label>
         <input
           id="email"
+          ref="emailInput"
           v-model="email"
           type="email"
           required
@@ -54,13 +55,12 @@
           Volver
         </nuxt-link>
       </div>
-
-      <!-- <p v-if="message" class="text-green-400 mt-4">{{ message }}</p> -->
     </div>
   </main>
 </template>
 
 <script setup>
+import { onMounted, ref } from "vue";
 import Swal from "sweetalert2";
 
 const email = ref("");
@@ -120,6 +120,13 @@ const handleSubmit = async () => {
     error.value = msg;
   }
 };
+
+// Referencia al input y así para focalizar atencion en input de email directamente!!
+const emailInput = ref(null);
+
+onMounted(() => {
+  emailInput.value?.focus();
+});
 </script>
 
 <style>

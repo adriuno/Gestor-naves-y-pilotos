@@ -29,6 +29,8 @@
     <div v-if="pilots.length">
       <Swiper
         :modules="[Navigation, Mousewheel, EffectCoverflow]"
+        role="group"
+        aria-label="Carrusel de pilotos"
         effect="coverflow"
         grab-cursor
         centered-slides
@@ -200,8 +202,7 @@
                       <img
                         :src="filmMap[film]"
                         :title="filmTitles[film]"
-                        :aria-label="`Imagen cartel de la película ${filmTitles[film]}`"
-                        :alt="`Cartel de ${filmTitles[film]}`"
+                        :alt="`Imagen de cartel de ${filmTitles[film]}`"
                         tabindex="0"
                         class="w-24 sm:w-28 h-auto rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
                       />
@@ -330,8 +331,6 @@ watch(busqueda, () => {
   fetchPilotsFromStarships();
 });
 
-
-
 // Esta función impide que el foco salga del modal cuando se usa Tab o Shift+Tab
 const trapFocus = (e) => {
   // Solo actuamos si se está presionando la tecla Tab
@@ -373,8 +372,6 @@ const trapFocus = (e) => {
   // De esta forma el foco queda encerrado dentro del modal, sin poder salirse al tabular
 };
 
-
-
 // para impedir scroll al abrir una modal!!
 watch(modalPiloto, (nuevoValor) => {
   if (nuevoValor) {
@@ -390,8 +387,6 @@ watch(modalPiloto, (nuevoValor) => {
     document.removeEventListener("keydown", trapFocus);
   }
 });
-
-
 
 const abrirModal = (pilot) => {
   if (typeof pilot.films === "string") {

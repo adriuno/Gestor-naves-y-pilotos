@@ -12,14 +12,14 @@
       muted
       playsinline
       class="w-full h-full object-cover absolute inset-0 z-0"
-      aria-hidden="true"
-      tabindex="-1"
+      tabindex="0"
       @canplay="initVideo"
       @ended="lanzarTransicion"
     />
 
     <!-- Botón para saltar -->
     <button
+      v-if="mostrarControles"
       class="absolute top-6 right-6 z-10 bg-yellow-600 text-black font-semibold px-3 py-2 rounded-2xl text-sm hover:bg-yellow-500"
       aria-label="Saltar vídeo de introducción y acceder al login"
       @click="lanzarTransicion"
@@ -29,6 +29,7 @@
 
     <!-- Controles de volumen -->
     <div
+      v-if="mostrarControles"
       class="fixed bottom-4 right-4 z-10 bg-black bg-opacity-60 px-4 py-2 rounded-lg text-white flex items-center space-x-2"
       role="group"
       aria-label="Control del volumen del video"
@@ -48,12 +49,13 @@
         :aria-valuenow="volume"
         aria-label="Control de volumen"
         @input="activateSound"
-      >
+      />
     </div>
 
     <!-- Botón play/pause -->
     <!-- CON lo del :aria-label..... conseguimos que el Lector diga una cosa u otra, en función del estado de la variable!!!!!!! -->
     <button
+      v-if="mostrarControles"
       class="fixed bottom-4 ml-4 z-10 hover:bg-yellow-800 rounded-2xl text-black px-2 py-1"
       :aria-label="reproduccion ? 'Pausar vídeo' : 'Reproducir vídeo'"
       :aria-pressed="reproduccion"
@@ -94,11 +96,19 @@ useHead({
 });
 
 //   Si ya ha visto la intro antes, redirigir directamente
+// para que los controles se muestren a los 4 segundicos:
+const mostrarControles = ref(false);
+
 onMounted(() => {
   const introVista = localStorage.getItem("introVista");
   if (introVista) {
     router.replace("/login");
   }
+
+  // Mostrar botones de control tras 4 segundos
+  setTimeout(() => {
+    mostrarControles.value = true;
+  }, 1900);
 });
 
 //  Marca como vista y lanza la animación de salida

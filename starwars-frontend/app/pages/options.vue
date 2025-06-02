@@ -273,6 +273,16 @@ onMounted(() => {
     .then(() => console.log("[Precarga] Naves precargadas"))
     .catch(() => console.warn("[Precarga] Error al precargar naves"));
 });
+
+const userName = ref("");
+try {
+  const user = JSON.parse(localStorage.getItem("user"));
+  userName.value = user?.username || "";
+} catch (e) {
+  console.warn("Error al leer usuario:", e);
+}
+
+
 </script>
 
 <style scoped>

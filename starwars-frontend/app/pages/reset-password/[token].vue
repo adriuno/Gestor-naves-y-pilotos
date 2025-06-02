@@ -16,7 +16,11 @@
         Nueva contraseña
       </h1>
 
-      <form @submit.prevent="handleSubmit" aria-describedby="formDescription">
+      <form
+        aria-describedby="formDescription"
+        autocomplete="off"
+        @submit.prevent="handleSubmit"
+      >
         <fieldset class="border-0 p-0 m-0">
           <legend class="sr-only">Formulario para cambiar contraseña</legend>
 
@@ -37,25 +41,42 @@
               autocomplete="new-password"
               aria-label="Escribe tu nueva contraseña"
               aria-describedby="passwordHelp"
-              class="w-full p-2 pr-10 rounded bg-gray-700 text-white"
+              :class="[
+                'w-full p-1 pr-10 rounded bg-gray-700 text-white border',
+                passwordTooShort
+                  ? 'border-red-500'
+                  : password.length >= passwordMinLength
+                  ? 'border-green-500'
+                  : 'border-gray-600',
+              ]"
               placeholder="Nueva contraseña"
               required
               minlength="8"
             />
-            <span class="absolute right-2 top-1.5">
-              <UButton
-                variant="link"
-                size="sm"
-                class="text-yellow-400"
-                :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                :aria-label="
-                  showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
-                "
-                @click="showPassword = !showPassword"
+            <!-- Botón ojo -->
+            <button
+              type="button"
+              class="absolute top-1.5 right-2 text-yellow-400"
+              :aria-label="
+                showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+              "
+              @click="showPassword = !showPassword"
+            >
+              <UIcon
+                :name="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
               />
-            </span>
-            <p id="passwordHelp" class="text-xs text-gray-400 mt-1">
-              Mínimo 8 caracteres.
+            </button>
+
+            <p
+              id="passwordHelp"
+              class="text-xs mt-1 italic"
+              :class="passwordTooShort ? 'text-red-400' : 'text-gray-400'"
+            >
+              {{
+                passwordTooShort
+                  ? "Debe tener al menos 8 caracteres"
+                  : "Mínimo 8 caracteres."
+              }}
             </p>
           </div>
 
@@ -70,23 +91,45 @@
               :type="showConfirm ? 'text' : 'password'"
               autocomplete="new-password"
               aria-label="Repite tu nueva contraseña"
-              class="w-full p-2 pr-10 rounded bg-gray-700 text-white"
+              :class="[
+                'w-full p-1 pr-10 rounded bg-gray-700 text-white border',
+                password_confirmation.length && !passwordsMatch
+                  ? 'border-red-500'
+                  : password_confirmation.length && passwordsMatch
+                  ? 'border-green-500'
+                  : 'border-gray-600',
+              ]"
               placeholder="Repetir contraseña"
               required
               minlength="8"
             />
-            <span class="absolute right-2 top-1.5">
-              <UButton
-                variant="link"
-                size="sm"
-                class="text-yellow-400"
-                :aria-label="
-                  showConfirm ? 'Ocultar confirmación' : 'Mostrar confirmación'
-                "
-                :icon="showConfirm ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                @click="showConfirm = !showConfirm"
+
+            <!-- Botón ojo -->
+            <button
+              type="button"
+              class="absolute top-1.5 right-2 text-yellow-400"
+              :aria-label="
+                showConfirm ? 'Ocultar confirmación' : 'Mostrar confirmación'
+              "
+              @click="showConfirm = !showConfirm"
+            >
+              <UIcon
+                :name="showConfirm ? 'i-lucide-eye-off' : 'i-lucide-eye'"
               />
-            </span>
+            </button>
+
+            <!-- Validación coincidencia -->
+            <p
+              v-if="password_confirmation.length > 0"
+              class="text-xs mt-1 italic"
+              :class="passwordsMatch ? 'text-green-400' : 'text-red-400'"
+            >
+              {{
+                passwordsMatch
+                  ? "Ambas coinciden"
+                  : "Las contraseñas no coinciden"
+              }}
+            </p>
           </div>
 
           <!-- Botón -->
@@ -128,6 +171,7 @@ const route = useRoute();
 const token = route.params.token;
 // Captura automáticamente el email desde la URL
 const email = ref(route.query.email || "");
+// captura el email tbn
 
 const password = ref("");
 const password_confirmation = ref("");
@@ -174,4 +218,17 @@ const handleSubmit = async () => {
     });
   }
 };
+
+const passwordMinLength = 8;
+
+const passwordTooShort = computed(
+  () => password.value.length > 0 && password.value.length < passwordMinLength
+);
+
+const passwordsMatch = computed(
+  () =>
+    password.value &&
+    password_confirmation.value &&
+    password.value === password_confirmation.value
+);
 </script>

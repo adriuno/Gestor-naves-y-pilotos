@@ -16,6 +16,8 @@ class ResetPasswordController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
+
+        // genera token y envía el email ya que esa es función propia de laravel
         $status = Password::sendResetLink(
             $request->only('email')
         );
@@ -42,6 +44,7 @@ class ResetPasswordController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // laravel verifica aquí que el token es válido y que está asociado al email!! y ya actualiza la pass
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) use ($request) {

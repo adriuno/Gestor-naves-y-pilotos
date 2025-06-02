@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing -->
 <!-- eslint-disable vue/no-multiple-template-root -->
 <template>
   <!-- Fondo negro fijo detrás de la animación -->
@@ -7,6 +8,7 @@
     <!-- Contenedor principal a pantalla completa con fondo oscuro -->
     <main
       id="login-main"
+      aria-labelledby="tituloLogin"
       class="min-h-screen flex items-center justify-center bg-black px-8 z-1 relative"
     >
       <!-- Tarjeta del formulario con fondo más claro y sombra -->
@@ -16,6 +18,7 @@
       >
         <!-- Título del formulario con fuente personalizada -->
         <h1
+          id="tituloLogin"
           class="text-3xl text-center text-yellow-500 mb-8 custom-starwars"
           tabindex="0"
         >
@@ -121,6 +124,20 @@
             </UFormField>
           </div>
 
+          <!-- Spinner accesible con Font Awesome -->
+          <div
+            v-if="isSubmitting"
+            class="flex justify-center items-center mt-4 gap-2"
+            role="status"
+            aria-live="polite"
+            aria-busy="true"
+          >
+            <i
+              class="fas fa-spinner fa-spin text-yellow-400 text-4xl"
+              aria-hidden="true"
+            ></i>
+          </div>
+
           <!-- Botón principal para enviar el formulario -->
           <UButton
             type="submit"
@@ -129,6 +146,7 @@
             class="text-black font-bold rounded-4xl"
             block
             aria-label="Botón para iniciar sesión con los datos introducidos"
+            :disabled="isSubmitting"
           >
             Iniciar sesión
           </UButton>
