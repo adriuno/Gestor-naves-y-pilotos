@@ -12,15 +12,15 @@
     <div class="relative z-10">
       <AppHeader />
       <main class="p-8 mx-auto bg-black/70 rounded-xl text-center">
-        <p class="mt-4 text-4xl text-yellow-300 custom-starwars">
+        <h1 class="mt-4 text-5xl text-yellow-300 custom-starwars">
           En una galaxia muy, muy lejana...
-        </p>
-        <br /><br />
-        <p class="text-3xl text-yellow-300 custom-starwars">
+        </h1>
+        <br ><br >
+        <h2 class="text-3xl text-yellow-300 custom-starwars">
           ¡Bienvenido al gestor de
-        </p>
-        <p class="text-3xl text-yellow-300 custom-starwars">naves y pilotos!</p>
-        <br />
+        </h2>
+        <h2 class="text-3xl text-yellow-300 custom-starwars">naves y pilotos!</h2>
+        <br >
 
         <!-- <CardsPilots  />  -->
         <CarrouselSwip />

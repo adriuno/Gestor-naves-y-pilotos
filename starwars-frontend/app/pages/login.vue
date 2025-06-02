@@ -76,7 +76,6 @@
                   trailing: 'pe-1',
                 }"
                 class="w-full"
-                aria-describedby="passwordHelp"
                 aria-label="Campo para introducir la contraseña"
               >
                 <!-- Botón de mostrar/ocultar contraseña -->

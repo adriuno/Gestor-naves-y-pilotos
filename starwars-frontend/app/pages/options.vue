@@ -36,7 +36,7 @@
         <canvas ref="naveCanvas" class="h-32 w-full" />
         <!-- Botón para ir a la página de naves -->
         <button
-          class="inline-block text-2xl text-black bg-yellow-400 bg-gray-500 mt-1 mb-8 custom-starwars rounded-4xl px-6 py-3 hover:scale-155 transition-transform hover:text-yellow-500 hover:bg-violet-600 transition-colors duration-300"
+          class="inline-block text-2xl text-black bg-yellow-400 mt-1 mb-8 custom-starwars rounded-4xl px-6 py-3 hover:scale-155 transition-transform hover:text-yellow-500 hover:bg-violet-600 transition-colors duration-300"
           aria-label="Ir a la sección de naves"
           tabindex="0"
           @click="goTo('starships')"
@@ -51,7 +51,7 @@
         <canvas ref="pilotoCanvas" class="h-32 w-full" />
         <!-- Botón para ir a la página de pilotos -->
         <button
-          class="inline-block text-2xl text-black bg-yellow-400 bg-gray-500 mt-2 mb-9 custom-starwars rounded-4xl px-6 py-3 hover:scale-155 transition-transform hover:text-yellow-500 hover:bg-violet-600 transition-colors duration-300"
+          class="inline-block text-2xl text-black bg-yellow-400 mt-2 mb-9 custom-starwars rounded-4xl px-6 py-3 hover:scale-155 transition-transform hover:text-yellow-500 hover:bg-violet-600 transition-colors duration-300"
           aria-label="Ir a la sección de pilotos"
           tabindex="0"
           @click="goTo('pilots')"
@@ -281,8 +281,6 @@ try {
 } catch (e) {
   console.warn("Error al leer usuario:", e);
 }
-
-
 </script>
 
 <style scoped>
