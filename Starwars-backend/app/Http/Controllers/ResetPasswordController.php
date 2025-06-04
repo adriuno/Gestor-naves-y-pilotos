@@ -30,7 +30,7 @@ class ResetPasswordController extends Controller
             return response()->json(['error' => trans($status)], 404);
         }
 
-        return response()->json(['error' => 'Error al enviar el enlace.'], 422);
+        return response()->json(['error' => 'Prueba más tarde.'], 422);
     }
 
 

@@ -14,8 +14,8 @@ class LoginController extends Controller
     public function register(Request $request)
     {
         $registerUserData = $request->validate([
-            'username' => ['required', 'string', 'min:3', 'max:60', 'not_regex:/[\p{So}\p{Cn}\s]/u'],
-            'email' => ['required', 'string', 'max:60', 'email:rfc', 'unique:users'],
+            'username' => ['required', 'string', 'min:3', 'max:60', 'unique:users,username', 'not_regex:/[\p{So}\p{Cn}\s]/u'],
+            'email' => ['required', 'string', 'max:60', 'email:rfc', 'unique:users,email'],
             // se puede poner solo 'email' que valida que sea algo@prueba... sin el .com
             'password' => [
                 'required',

@@ -2,29 +2,31 @@
 
 return [
     'required' => 'El campo :attribute es obligatorio.',
-    'email' => 'El  :attribute debe ser una dirección de correo válida.',
+    'email' => 'El :attribute debe ser un email válido.',
+
     'min' => [
         'string' => 'El :attribute debe tener al menos :min caracteres.',
     ],
     'max' => [
         'string' => 'El :attribute no debe superar los :max caracteres.',
     ],
+
     'confirmed' => 'La confirmación de :attribute no coincide.',
-    
-    // para los campos de login y registro!
+    'unique' => 'El campo :attribute ya ha sido registrado.',
+
     'custom' => [
         'username' => [
-            'not_regex' => 'El :attribute no debe contener espacios ni emojis.',
+            'not_regex' => 'El nombre de usuario no debe contener espacios ni emojis.',
+            'unique' => 'Nombre de usuario ya en uso.',
         ],
         'password' => [
-            'not_regex' => 'La :attribute no debe contener espacios ni emojis.',
-            'regex' => 'Debe haber al menos 1 mayúscula, 1 minúscula y 1 número.',
+            'not_regex' => 'La contraseña no puede contener espacios ni emojis.',
+            'regex' => 'Debe haber al menos 1 mayúscula, 1 minúscula y 1nº.',
         ],
         'email' => [
-            'unique' => 'Ya existe una cuenta registrada con ese email.',
+            'unique' => 'Email ya registrado.',
         ],
     ],
-
 
     'attributes' => [
         'username' => ' "Nombre de usuario" ',

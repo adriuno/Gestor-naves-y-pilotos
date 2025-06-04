@@ -9,7 +9,7 @@
       >
     </div>
 
-    <div class="relative z-10">
+    <div class="relative">
       <AppHeader />
       <main class="p-8 mx-auto bg-black/70 rounded-xl text-center">
         <h1 class="mt-4 text-5xl text-yellow-300 custom-starwars">
@@ -40,7 +40,15 @@ useHead({
   htmlAttrs: {
     lang: "es",
   },
+  link: [
+    {
+      rel: "icon",
+      type: "image/png",
+      href: "/images/logo/sw4.webp", // Asegúrate que esta ruta sea correcta y el archivo exista
+    }
+  ]
 });
+
 </script>
 
 <style>

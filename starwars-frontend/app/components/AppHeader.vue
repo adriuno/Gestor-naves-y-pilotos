@@ -50,10 +50,10 @@
       role="group"
       aria-label="Usuario y botón de cierre de sesión"
     >
-      <!-- Nombre de usuario -->
+      <!-- Nombre de usuario, oculto en móviles -->
       <div
         v-if="userName"
-        class="text-white text-xs sm:text-sm bg-gray-800 bg-opacity-80 px-3 py-1 rounded-full border border-yellow-500 flex items-center"
+        class="hidden md:flex text-white text-xs sm:text-sm bg-gray-800 bg-opacity-80 px-3 py-1 rounded-full border border-yellow-500 items-center"
         style="font-size: 14px"
         tabindex="0"
         :aria-label="`Nombre de usuario: ${userName}`"
@@ -62,6 +62,7 @@
         <i class="fa-solid fa-user text-yellow-400 mr-2" aria-hidden="true" />
         {{ userName }}
       </div>
+
 
       <!-- Botón logout -->
       <UButton
@@ -77,7 +78,8 @@
 </template>
 
 <script setup>
-import Swal from "sweetalert2";
+import swalDark from "@/utils/swalDark";
+
 
 const userName = ref("");
 try {
@@ -88,12 +90,12 @@ try {
 }
 
 const cerrarSesion = async () => {
-  const confirm = await Swal.fire({
-    title: "¿Cerrar sesión?",
-    text: "Vas a salir de la aplicación",
+  const confirm = await swalDark.fire({
+    title: "¿Cerrar sesion?",
+    text: "¡Vas a salir de la aplicación!",
     icon: "warning",
     showCancelButton: true,
-    confirmButtonText: "Sí, cerrar",
+    confirmButtonText: " Salir ",
     cancelButtonText: "Cancelar",
     confirmButtonColor: "#d33",
     cancelButtonColor: "#3085d6",
@@ -117,7 +119,7 @@ const cerrarSesion = async () => {
     navigateTo("/login");
   } catch (error) {
     console.error("Error al cerrar sesión:", error);
-    Swal.fire({
+    swalDark.fire({
       icon: "error",
       title: "Error",
       text: "No se pudo cerrar la sesión. Inténtalo de nuevo.",

@@ -166,7 +166,7 @@
           <!-- Enlace a registro para nuevos usuarios -->
           <div class="text-center text-white mt-14" role="contentinfo">
             <p class="custom-starwars mb-5" tabindex="0">
-              ¿Aún no tienes cuenta?
+              ¿Aun no tienes cuenta?
             </p>
             <nuxt-link
               to="registro"
@@ -184,11 +184,19 @@
 
 <script setup>
 useHead({
-  title: "Gestor | Iniciar sesión",
+  title: "Gestor | Login",
   htmlAttrs: {
     lang: "es",
   },
+  link: [
+    {
+      rel: "icon",
+      type: "image/png",
+      href: "/images/logo/sw4.webp", // Asegúrate que esta ruta sea correcta y el archivo exista
+    }
+  ]
 });
+
 
 // Esto para quitar la transición DE registro A login!!
 const sinTransicion = ref(false);
@@ -306,16 +314,15 @@ if (
 onMounted(() => {
   const route = useRoute();
   if (route.query.unauthorized) {
-    // Cargamos SweetAlert2 de forma dinámica para mostrar la alerta
-    import("sweetalert2").then((Swal) => {
-      Swal.default.fire({
+    import("~/utils/swalDark").then((module) => {
+      module.default.fire({
         icon: "error",
-        title: "Acceso no autorizado",
-        text: "Por favor inicia sesión de nuevo.",
-        confirmButtonColor: "#facc15",
+        title: " acceso no autorizado",
+        text: "Inicia sesión de nuevo.",
       });
     });
   }
+
 });
 </script>
 

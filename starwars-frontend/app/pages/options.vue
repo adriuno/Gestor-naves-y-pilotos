@@ -82,7 +82,15 @@ useHead({
   htmlAttrs: {
     lang: "es",
   },
+  link: [
+    {
+      rel: "icon",
+      type: "image/png",
+      href: "/images/logo/sw4.webp", // Asegúrate que esta ruta sea correcta y el archivo exista
+    }
+  ]
 });
+
 
 // Instancia del router
 const router = useRouter();
@@ -202,12 +210,11 @@ watch(autenticando, (valor) => {
 
 // Cierre de sesión con confirmación
 const cerrarSesion = async () => {
-  const confirm = await Swal.fire({
-    title: "¿Cerrar sesión?",
-    text: "Vas a salir de la aplicación",
+  const confirm = await swalDark.fire({
+    title: "¿Cerrar sesion?",
     icon: "warning",
     showCancelButton: true,
-    confirmButtonText: "Sí, cerrar",
+    confirmButtonText: "Salir",
     cancelButtonText: "Cancelar",
     confirmButtonColor: "#d33",
     cancelButtonColor: "#3085d6",

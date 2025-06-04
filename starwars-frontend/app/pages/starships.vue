@@ -6,7 +6,7 @@
         src="/images/sw3.jpg"
         alt="galaxy"
         class="w-full h-full object-cover brightness-75"
-      />
+      >
     </div>
 
     <div class="relative z-10">
@@ -18,14 +18,14 @@
         >
           En una galaxia muy, muy lejana...
         </h1>
-        <br /><br />
+        <br ><br >
         <h2 class="text-3xl text-yellow-300 custom-starwars">
           ¡Bienvenido al gestor de
         </h2>
         <h2 class="text-3xl text-yellow-300 custom-starwars">
           naves y pilotos!
         </h2>
-        <br />
+        <br >
 
         <!-- <CardsApp  />  -->
         <CardsApp />
@@ -45,7 +45,15 @@ useHead({
   htmlAttrs: {
     lang: "es",
   },
+  link: [
+    {
+      rel: "icon",
+      type: "image/png",
+      href: "/images/logo/sw4.webp", // Asegúrate que esta ruta sea correcta y el archivo exista
+    }
+  ]
 });
+
 
 onMounted(() => {
   const title = document.getElementById("introTitle");

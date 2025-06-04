@@ -145,14 +145,22 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import Swal from "sweetalert2";
+import swalDark from "@/utils/swalDark";
 
 useHead({
   title: "Gestor | Registro",
   htmlAttrs: {
     lang: "es",
   },
+  link: [
+    {
+      rel: "icon",
+      type: "image/png",
+      href: "/images/logo/sw4.webp", // Asegúrate que esta ruta sea correcta y el archivo exista
+    }
+  ]
 });
+
 
 const config = useRuntimeConfig();
 
@@ -207,10 +215,10 @@ const handleSubmit = async () => {
     });
 
     // Alerta sweetalert
-    await Swal.fire({
+    await swalDark.fire({
       icon: "success",
-      title: "¡Registro con éxito!",
-      text: "Tu cuenta se ha creado correctamente. Estás siendo redirigido...",
+      title: "¡Registro con exito!",
+      text: "Redirigiendo...",
       timer: 3000,
       showConfirmButton: false,
     });
@@ -221,7 +229,7 @@ const handleSubmit = async () => {
       errors.value = err.data.errors;
     } else {
       error.value = err?.data?.message || "Error al registrar usuario";
-      Swal.fire({
+      await swalDark.fire({
         icon: "error",
         title: "Error",
         text: error.value,

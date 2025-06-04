@@ -42,7 +42,7 @@
               aria-label="Escribe tu nueva contraseña"
               aria-describedby="passwordHelp"
               :class="[
-                'w-full p-1 pr-10 rounded bg-gray-700 text-white border',
+                'w-full p-1 pr-10 rounded bg-gray-700 text-white border focus:border-yellow-500 focus:outline-none',
                 passwordTooShort
                   ? 'border-red-500'
                   : password.length >= passwordMinLength
@@ -92,7 +92,7 @@
               autocomplete="new-password"
               aria-label="Repite tu nueva contraseña"
               :class="[
-                'w-full p-1 pr-10 rounded bg-gray-700 text-white border',
+                'w-full p-1 pr-10 rounded bg-gray-700 text-white border focus:border-yellow-500 focus:outline-none',
                 password_confirmation.length && !passwordsMatch
                   ? 'border-red-500'
                   : password_confirmation.length && passwordsMatch
@@ -165,7 +165,24 @@
 </template>
 
 <script setup>
-import Swal from "sweetalert2";
+import swalDark from "@/utils/swalDark";
+
+useHead({
+  title: "Nueva contraseñas",
+  htmlAttrs: {
+    lang: "es",
+  },
+  link: [
+    {
+      rel: "icon",
+      type: "image/png",
+      href: "/images/logo/sw4.webp", // Asegúrate que esta ruta sea correcta y el archivo exista
+    }
+  ]
+});
+
+
+
 const route = useRoute();
 
 const token = route.params.token;
@@ -200,10 +217,9 @@ const handleSubmit = async () => {
       },
     });
 
-    await Swal.fire({
+    await swalDark.fire({
       icon: "success",
-      title: "¡Contraseña actualizada!",
-      text: "Ahora puedes iniciar sesión con tu nueva contraseña.",
+      title: "¡Clave actualizada!",
       timer: 2500,
       showConfirmButton: false,
     });
@@ -211,7 +227,7 @@ const handleSubmit = async () => {
     navigateTo("/login");
   } catch (err) {
     error.value = err?.data?.message || "Error al cambiar la contraseña";
-    Swal.fire({
+    swalDark.fire({
       icon: "error",
       title: "Oops...",
       text: error.value,

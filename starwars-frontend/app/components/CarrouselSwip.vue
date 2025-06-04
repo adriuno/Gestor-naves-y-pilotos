@@ -217,7 +217,7 @@
               <!-- Botón cerrar -->
               <div class="text-center mt-4">
                 <button
-                  class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition hover:drop-shadow-[0_0_15px_#38bdf8]"
                   aria-label="Cerrar modal"
                   @click="cerrarModal"
                 >

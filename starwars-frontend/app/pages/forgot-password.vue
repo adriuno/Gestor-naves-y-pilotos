@@ -62,27 +62,35 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import Swal from "sweetalert2";
+import swalDark from "@/utils/swalDark";
 
 const email = ref("");
 const message = ref("");
 const error = ref("");
 
 useHead({
-  title: "Gestor | Recuperar contraseña",
+  title: "Recuperar contraseña",
   htmlAttrs: {
     lang: "es",
   },
+  link: [
+    {
+      rel: "icon",
+      type: "image/png",
+      href: "/images/logo/sw4.webp", // Asegúrate que esta ruta sea correcta y el archivo exista
+    }
+  ]
 });
+
 
 const handleSubmit = async () => {
   error.value = "";
   message.value = "";
 
   try {
-    Swal.fire({
+    swalDark.fire({
       icon: "info",
-      title: "Enviando...",
-      text: "Procesando solicitud...",
+      title: "Enviando solicitud...",
       showConfirmButton: false,
       allowOutsideClick: false,
       didOpen: () => {
@@ -97,10 +105,10 @@ const handleSubmit = async () => {
 
     Swal.close();
 
-    await Swal.fire({
+    await swalDark.fire({
       icon: "success",
       title: "¡Correo enviado!",
-      text: "Revisa tu bandeja de entrada para el enlace de recuperación.",
+      text: "Revisa tu bandeja de entrada.",
       confirmButtonText: "Aceptar",
     });
 
@@ -108,9 +116,9 @@ const handleSubmit = async () => {
   } catch (err) {
     Swal.close();
 
-    const msg = err?.data?.error || "Error al enviar el correo.";
+    const msg = err?.data?.error || "Prueba mas tarde.";
 
-    await Swal.fire({
+    await swalDark.fire({
       icon: "error",
       title: "Error",
       text: msg,

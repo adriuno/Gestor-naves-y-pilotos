@@ -49,7 +49,7 @@
         :aria-valuenow="volume"
         aria-label="Control de volumen"
         @input="activateSound"
-      />
+      >
     </div>
 
     <!-- Botón play/pause -->
@@ -93,7 +93,15 @@ useHead({
   htmlAttrs: {
     lang: "es",
   },
+  link: [
+    {
+      rel: "icon",
+      type: "image/png",
+      href: "/images/logo/sw4.webp", // Asegúrate que esta ruta sea correcta y el archivo exista
+    }
+  ]
 });
+
 
 //   Si ya ha visto la intro antes, redirigir directamente
 // para que los controles se muestren a los 4 segundicos:
