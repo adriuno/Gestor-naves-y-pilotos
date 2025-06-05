@@ -227,6 +227,10 @@ const isSubmitting = ref(false);
 // Obtenemos el router de Nuxt para hacer redirecciones
 const router = useRouter();
 
+const config = useRuntimeConfig()
+// y esto último para poder acceder a variables de entorno (.env)
+
+
 // FUNCIÓN DE ENVÍO DEL FORMULARIO
 // ==============================
 const handleSubmit = async () => {
@@ -237,7 +241,7 @@ const handleSubmit = async () => {
 
   try {
     // Enviamos los datos del formulario al backend mediante fetch
-    const response = await $fetch("http://localhost:8000/api/login", {
+    const response = await $fetch(`${config.public.API_URL}/api/login`, {
       method: "POST",
       body: form.value,
     });
@@ -280,7 +284,7 @@ const handleSubmit = async () => {
 
 // Redirige al backend para iniciar el flujo de login con Google
 const loginWithGoogle = () => {
-  window.location.href = "http://localhost:8000/api/auth/google/redirect";
+  window.location.href = `${config.public.API_URL}/api/auth/google/redirect`;
 };
 
 // ==============================

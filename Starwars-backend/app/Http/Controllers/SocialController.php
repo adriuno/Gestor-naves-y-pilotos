@@ -35,8 +35,10 @@ class SocialController extends Controller
 
             // Creamos igual aquí tbn un token para el usuario
             $token = $user->createToken('AuthToken')->plainTextToken;
+            $frontendUrl = config('app.frontend_url') ?? 'http://localhost:3000';
 
-            return redirect()->to('http://localhost:3000/login?access_token=' . $token . '&user=' . urlencode(json_encode([
+
+            return redirect()->to($frontendUrl . '/login?access_token=' . $token . '&user=' . urlencode(json_encode([
                 'id' => $user->id,
                 'username' => $user->username,
                 'email' => $user->email,

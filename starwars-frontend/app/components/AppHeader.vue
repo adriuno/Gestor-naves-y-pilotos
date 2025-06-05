@@ -79,6 +79,7 @@
 
 <script setup>
 import swalDark from "@/utils/swalDark";
+const config = useRuntimeConfig();
 
 
 const userName = ref("");
@@ -106,12 +107,15 @@ const cerrarSesion = async () => {
   const token = localStorage.getItem("token");
 
   try {
-    await $fetch("http://localhost:8000/api/logout", {
+
+    await $fetch(`${config.public.API_URL}/api/logout`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+
+
 
     localStorage.removeItem("token");
 

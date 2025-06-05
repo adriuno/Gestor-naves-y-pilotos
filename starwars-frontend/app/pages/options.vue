@@ -91,6 +91,7 @@ useHead({
   ]
 });
 
+const config = useRuntimeConfig();
 
 // Instancia del router
 const router = useRouter();
@@ -225,12 +226,15 @@ const cerrarSesion = async () => {
   const token = localStorage.getItem("token");
 
   try {
-    await $fetch("http://localhost:8000/api/logout", {
+
+
+    await $fetch(`${config.public.API_URL}/api/logout`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+
 
     localStorage.removeItem("token");
     router.push("/login");
@@ -272,11 +276,11 @@ onMounted(() => {
   });
 
   // Precarga de datos desde API para hacer que se muestren algo más rapido!!
-  fetch("http://localhost:8000/api/pilots")
+  fetch(`${config.public.API_URL}/api/pilots`)
     .then(() => console.log("[Precarga] Pilotos precargados"))
     .catch(() => console.warn("[Precarga] Error al precargar pilotos"));
 
-  fetch("http://localhost:8000/api/starships")
+  fetch(`${config.public.API_URL}/api/starships`)
     .then(() => console.log("[Precarga] Naves precargadas"))
     .catch(() => console.warn("[Precarga] Error al precargar naves"));
 });

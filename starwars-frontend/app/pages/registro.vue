@@ -156,7 +156,7 @@ useHead({
     {
       rel: "icon",
       type: "image/png",
-      href: "/images/logo/sw4.webp", // Asegúrate que esta ruta sea correcta y el archivo exista
+      href: "/images/logo/sw4.webp", 
     }
   ]
 });

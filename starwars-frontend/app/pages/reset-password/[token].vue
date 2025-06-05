@@ -196,6 +196,8 @@ const showPassword = ref(false);
 const showConfirm = ref(false);
 const message = ref("");
 const error = ref("");
+const config = useRuntimeConfig();
+
 
 const handleSubmit = async () => {
   message.value = "";
@@ -207,7 +209,8 @@ const handleSubmit = async () => {
   }
 
   try {
-    await $fetch("http://localhost:8000/api/reset-password", {
+
+    await $fetch(`${config.public.API_URL}/api/reset-password`, {
       method: "POST",
       body: {
         token,
@@ -216,6 +219,7 @@ const handleSubmit = async () => {
         password_confirmation: password_confirmation.value,
       },
     });
+
 
     await swalDark.fire({
       icon: "success",

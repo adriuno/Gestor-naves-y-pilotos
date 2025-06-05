@@ -67,7 +67,7 @@ class LoginController extends Controller
 
         $key = $this->throttleKey($request);
 
-        // 👉 Si ya está bloqueado, respondemos directamente
+        // Si ya está bloqueado, respondemos directamente
         if (RateLimiter::tooManyAttempts($key, 3)) {
             $seconds = RateLimiter::availableIn($key);
             return response()->json([
