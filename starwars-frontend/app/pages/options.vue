@@ -70,7 +70,7 @@ import Swal from "sweetalert2";
 // Librería Three.js para mostrar modelos 3D
 import * as THREE from "three";
 // Cargador de modelos GLTF
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+// import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 // Utilidades de Vue
 import { onMounted, nextTick, watch, ref } from "vue";
@@ -108,73 +108,127 @@ const goTo = (section) => {
   router.push(`/${section}`);
 };
 
-// Carga un modelo 3D en un canvas usando Three.js
-const loadModel = async (canvasRef, modelUrl, options = {}) => {
-  const scene = new THREE.Scene();
+const loadingModelos = ref(true); // NUEVO
 
-  // Cámara con perspectiva
+
+
+
+
+
+onBeforeMount(() => {
+  preloadGLB("/models/awing.glb");
+  preloadGLB("/models/pilot2.glb");
+});
+
+
+// ✅ Precarga de modelos 3D al fondo
+const preloadGLB = async (url) => {
+  if (modelCache[url]) return; // ya está en caché
+  const { GLTFLoader } = await import("three/examples/jsm/loaders/GLTFLoader");
+  const loader = new GLTFLoader();
+  loader.load(
+    url,
+    (gltf) => {
+      modelCache[url] = gltf.scene.clone();
+      console.log(`[Precarga] Modelo listo: ${url}`);
+    },
+    undefined,
+    (error) => {
+      console.warn(`[Precarga] Error al cargar ${url}`, error);
+    }
+  );
+};
+
+
+// Animación continua para darle vida
+const animateModel = (model, renderer, scene, camera) => {
+  const animate = () => {
+    requestAnimationFrame(animate);
+    model.rotation.y += 0.002;
+    renderer.render(scene, camera);
+  };
+  animate();
+};
+
+// Carga del modelo en canvas
+const loadModel = async (canvasRef, modelUrl, options = {}) => {
+  // eslint-disable-next-line nuxt/prefer-import-meta
+  if (!process.client) return;
+
+  const { GLTFLoader } = await import("three/examples/jsm/loaders/GLTFLoader");
+  const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
   camera.position.z = options.cameraZ || 6;
 
-  // Renderer de WebGL
   const renderer = new THREE.WebGLRenderer({
     canvas: canvasRef.value,
-    alpha: true, // Fondo transparente
-    antialias: false, // Mejor rendimiento
+    alpha: true,
+    antialias: true,
   });
   renderer.setSize(canvasRef.value.clientWidth, canvasRef.value.clientHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
 
-  // Iluminación ambiental
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
-  scene.add(ambientLight);
+  scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+  dirLight.position.set(3, 5, 2);
+  scene.add(dirLight);
+  const pointLight = new THREE.PointLight(0xffffff, 1, 10);
+  pointLight.position.set(0, 0, 2);
+  scene.add(pointLight);
 
-  // Luz direccional como si fuera el sol
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-  directionalLight.position.set(3, 5, 2);
-  scene.add(directionalLight);
-
-  // Cargar o usar modelo desde caché
   let model;
   if (modelCache[modelUrl]) {
     model = modelCache[modelUrl].clone();
   } else {
-    const gltf = await new Promise((resolve, reject) => {
-      new GLTFLoader().load(modelUrl, resolve, undefined, reject);
-    });
+    const loader = new GLTFLoader();
+    const gltf = await loader.loadAsync(modelUrl);
     model = gltf.scene;
     modelCache[modelUrl] = model.clone();
   }
 
-  // Escala y posición del modelo
   const scale = options.scale || 1.5;
   model.scale.set(scale, scale, scale);
   model.position.set(0, -0.5, 0);
+  model.rotation.y = Math.PI;
+
+  model.traverse((child) => {
+    if (child.isMesh && child.material) {
+      child.material.side = THREE.DoubleSide;
+      child.material.metalness = 0.4;
+      child.material.roughness = 0.3;
+      child.material.needsUpdate = true;
+    }
+  });
+
   scene.add(model);
 
-  // Variables para el movimiento con el ratón
-  let mouseX = 0;
-  let mouseY = 0;
-
-  // Renderiza la escena con rotación del modelo
-  const renderScene = () => {
-    model.rotation.y = mouseX * 1.5;
-    model.rotation.x = mouseY * 1.0;
-    renderer.render(scene, camera);
-  };
-
-  renderScene(); // Render inicial
-
-  // Detectar movimiento del ratón para girar el modelo
+  // Interacción con ratón
+  let mouseX = 0, mouseY = 0;
   canvasRef.value.addEventListener("mousemove", (event) => {
     const rect = canvasRef.value.getBoundingClientRect();
     const x = (event.clientX - rect.left) / rect.width;
     const y = (event.clientY - rect.top) / rect.height;
     mouseX = (x - 0.5) * 6;
     mouseY = (y - 0.5) * 2;
-    renderScene();
+    model.rotation.y = Math.PI + mouseX * 1.5;
+    model.rotation.x = mouseY * 1.0;
+    renderer.render(scene, camera);
   });
+
+  // Animación constante
+  animateModel(model, renderer, scene, camera);
 };
+
+// Precarga modelos al cargar
+onMounted(() => {
+  preloadGLB("/models/awing.glb");
+  preloadGLB("/models/pilot2.glb");
+});
+
+
 
 // Variable para saber si estamos esperando autenticación
 const autenticando = ref(true);
@@ -189,25 +243,20 @@ onMounted(() => {
   autenticando.value = false; // Ahora sí mostramos la vista
 });
 
-// Cuando autenticando cambia, cargamos los modelos
-watch(autenticando, (valor) => {
+// Cuando termina autenticación: carga en paralelo y oculta loading
+watch(autenticando, async (valor) => {
   if (!valor) {
-    nextTick(() => {
-      if (naveCanvas.value && pilotoCanvas.value) {
-        loadModel(naveCanvas, "/models/awing.glb", {
-          scale: 2,
-          cameraZ: 30,
-        });
-        loadModel(pilotoCanvas, "/models/pilot1.glb", {
-          scale: 2,
-          cameraZ: 6,
-        });
-      } else {
-        console.warn("Canvas no disponibles tras mostrar vista.");
-      }
-    });
+    await nextTick();
+    await Promise.all([
+      loadModel(naveCanvas, "/models/awing.glb", { scale: 2.2, cameraZ: 30 }),
+      loadModel(pilotoCanvas, "/models/pilot2.glb", { scale: 17, cameraZ: 6 }),
+    ]);
+    loadingModelos.value = false;
   }
 });
+
+
+
 
 // Cierre de sesión con confirmación
 const cerrarSesion = async () => {

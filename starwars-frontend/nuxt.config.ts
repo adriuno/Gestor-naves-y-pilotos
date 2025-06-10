@@ -24,7 +24,7 @@ export default defineNuxtConfig({
     public: {
       // @ts-expect-error: process.env is used for runtimeConfig in Nuxt
       // ahora si por lo que sea no existe esa variable, tirará de localhost !!
-      API_URL: process.env.NUXT_API_URL || 'http://localhost:8000'
+      API_URL: process.env.NUXT_API_URL || process.env.API_URL
     }
   },
 

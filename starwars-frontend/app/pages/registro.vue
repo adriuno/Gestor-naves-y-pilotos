@@ -131,7 +131,7 @@
         <div class="text-center text-white mt-8" role="contentinfo">
           <p class="custom-starwars mb-5" tabindex="0">¿ya tienes cuenta?</p>
           <UButton
-            class="block w-full btn text-md rounded-4xl bg-blue-600 font-bold p-2 hover:bg-blue-700"
+            class="block w-full btn text-md text-white rounded-4xl bg-blue-600 font-bold p-2 hover:bg-blue-700"
             aria-label="Botón para volver a la pantalla de inicio de sesión"
             @click="irAlLogin"
           >
@@ -146,6 +146,8 @@
 <script setup>
 import { ref, computed } from "vue";
 import swalDark from "@/utils/swalDark";
+
+
 
 useHead({
   title: "Gestor | Registro",

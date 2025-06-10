@@ -183,6 +183,10 @@
 </template>
 
 <script setup>
+import { useRuntimeConfig } from '#imports'
+
+
+
 useHead({
   title: "Gestor | Login",
   htmlAttrs: {
@@ -239,12 +243,19 @@ const handleSubmit = async () => {
   errors.value = {};
   isSubmitting.value = true; // desactiva el botón
 
+
+console.log(config.public)
+
   try {
     // Enviamos los datos del formulario al backend mediante fetch
     const response = await $fetch(`${config.public.API_URL}/api/login`, {
       method: "POST",
       body: form.value,
     });
+
+// const response = await $fetch(`${config.public.API_URL}/api/login`, 
+
+
 
     // Si el login es exitoso, guardamos el token y datos del usuario en localStorage
     localStorage.setItem("token", response.access_token);
@@ -327,6 +338,7 @@ onMounted(() => {
     });
   }
 
+  
 });
 </script>
 

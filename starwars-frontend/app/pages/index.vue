@@ -8,10 +8,11 @@
     <video
       ref="videoRef"
       src="/sounds/introSW.mp4"
+      preload="auto"
       autoplay
       muted
       playsinline
-      class="w-full h-full object-cover absolute inset-0 z-0"
+      class="w-full h-full object-contain md:object-cover absolute inset-0 z-0"
       tabindex="0"
       @canplay="initVideo"
       @ended="lanzarTransicion"

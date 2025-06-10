@@ -17,6 +17,17 @@
         >
           <i class="fas fa-search" />
         </div>
+          <!-- Sugerencias -->
+          <ul v-if="mostrarSugerencias && sugerencias.length"
+            class="absolute z-20 mt-1 w-full bg-gray-900 border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            <li v-for="(item, i) in sugerencias" :key="i" tabindex="-1"
+              class="px-4 py-2 hover:bg-yellow-400/80 hover:text-black font-semibold cursor-pointer transition text-left"
+              @click="seleccionarSugerencia(item)"
+              >
+              {{ item }}
+            </li>
+          </ul>
+
       </div>
     </div>
 
@@ -251,6 +262,9 @@ const pilots = ref([]);
 const busqueda = ref("");
 const modalPiloto = ref(null);
 const cargandoPilotos = ref(false);
+const sugerencias = ref([]);
+const mostrarSugerencias = ref(false);
+
 
 const filmMap = {
   "https://swapi.dev/api/films/1/": "/images/films/1.webp",
@@ -269,6 +283,52 @@ const filmTitles = {
   "https://swapi.dev/api/films/5/": "El ataque de los clones",
   "https://swapi.dev/api/films/6/": "La venganza de los Sith",
 };
+
+
+const seleccionarSugerencia = (nombre) => {
+  busqueda.value = nombre;
+  mostrarSugerencias.value = false;
+  fetchPilotsFromStarships(); // vuelve a filtrar
+};
+
+watch(busqueda, (nuevoValor) => {
+  const texto = nuevoValor.trim().toLowerCase();
+
+  if (texto === "") {
+    sugerencias.value = [];
+    mostrarSugerencias.value = false;
+    fetchPilotsFromStarships();
+    return;
+  }
+
+  sugerencias.value = pilots.value
+    .map(p => p.name)
+    .filter(nombre => nombre.toLowerCase().includes(texto))
+    .slice(0, 5);
+
+  mostrarSugerencias.value = sugerencias.value.length > 0;
+  fetchPilotsFromStarships();
+});
+
+
+onMounted(() => {
+  document.addEventListener("click", (e) => {
+    const target = e.target;
+    if (!target.closest(".relative")) {
+      mostrarSugerencias.value = false;
+    }
+  });
+});
+
+onMounted(() => {
+  document.addEventListener("click", () => {
+    setTimeout(() => {
+      mostrarSugerencias.value = false;
+    }, 100); // Espera a que se procese el clic
+  });
+});
+
+
 
 useHead({
   htmlAttrs: {
@@ -327,9 +387,9 @@ const fetchPilotsFromStarships = async () => {
 
 onMounted(fetchPilotsFromStarships);
 
-watch(busqueda, () => {
-  fetchPilotsFromStarships();
-});
+// watch(busqueda, () => {
+//   fetchPilotsFromStarships();
+// });
 
 // Esta función impide que el foco salga del modal cuando se usa Tab o Shift+Tab
 const trapFocus = (e) => {
@@ -438,6 +498,16 @@ onUnmounted(() => {
 const handleEscape = (e) => {
   if (e.key === "Escape" && modalPiloto.value) cerrarModal();
 };
+
+
+onMounted(() => {
+  // Pre-carga invisible de imágenes de películas PARA cargarlas rápido luego en cada card!!
+  Object.values(filmMap).forEach((src) => {
+    const img = new Image();
+    img.src = src;
+  });
+});
+
 </script>
 
 <style>
